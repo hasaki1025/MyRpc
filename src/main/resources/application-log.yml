@@ -3,7 +3,7 @@ logging:
   level:
     # web日志
     org.springframework.web: debug
-    com.example.nettyrpc: debug
+    com.myrpc: debug
     io:
       netty:
         handler:

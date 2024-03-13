@@ -4,6 +4,9 @@ spring:
 
 
 MyRpc:
+  service:
+    name:
+    port: 0
   register:
     address: nacos://127.0.0.1:8848
     auth:
