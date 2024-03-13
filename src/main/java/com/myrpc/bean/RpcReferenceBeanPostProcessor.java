@@ -74,6 +74,10 @@ public class RpcReferenceBeanPostProcessor implements BeanPostProcessor {
                     throw new RuntimeException(e);
                 }
             }
+        } else if (bean instanceof ServiceReference<?>) {
+            String serviceName = ((ServiceReference<?>) bean).getServiceName();
+            context.addServiceInterface(((ServiceReference<?>) bean).getInterfaceClass(), serviceName);
+            context.addSubscribeService(serviceName);
         }
         return BeanPostProcessor.super.postProcessAfterInitialization(bean, beanName);
     }

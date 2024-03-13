@@ -13,8 +13,16 @@ public class ServiceReference<T> implements FactoryBean<T> {
     private T proxy=null;
     ProxyFactory proxyFactory;
 
+    private final String serviceName;
+
     public ServiceReference(Class<?> interfaceClass) {
         this.interfaceClass = interfaceClass;
+        this.serviceName=interfaceClass.getCanonicalName();
+    }
+
+    public ServiceReference(Class<?> interfaceClass, String serviceName) {
+        this.interfaceClass = interfaceClass;
+        this.serviceName = serviceName;
     }
 
     /**
