@@ -6,8 +6,6 @@ import com.myrpc.net.DefaultConvertor;
 import com.myrpc.net.EncipherConvertor;
 import com.myrpc.net.RSAConvertor;
 import com.myrpc.protocol.Enums.EncryptionMethod;
-import org.springframework.beans.factory.FactoryBean;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
@@ -37,7 +35,7 @@ public class EncryptionFactory  {
         else if (method.equals(EncryptionMethod.RSA)) {
             return new RSAConvertor();
         } else if (method.equals(EncryptionMethod.AES)) {
-            return new AESConvertor();
+            return new AESConvertor(rpcProperties.getRpcNetProperties().getProtocolProperties().getAES_SecretKey());
         }
         throw new Exception("no match EncryptionMethod");
     }

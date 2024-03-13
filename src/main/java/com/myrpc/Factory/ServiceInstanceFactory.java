@@ -44,8 +44,8 @@ public class ServiceInstanceFactory {
                 instance.setClusterName(clusterName);
             instance.setIp(properties.getRpcNetProperties().getIp());
             instance.setPort(properties.getRpcNetProperties().getPort());
-           //TODO 注解中不支持配置Map类型，MetaData属性暂时不可用
-            // instance.setMetadata();
+            instance.setEnableSSL(properties.getRpcNetProperties().getSslProperties().isEnable());
+
             return instance;
         }
         throw new Exception("not match type Instance");

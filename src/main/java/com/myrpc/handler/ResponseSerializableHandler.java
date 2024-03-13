@@ -3,6 +3,7 @@ package com.myrpc.handler;
 import com.myrpc.context.ProtocolProperties;
 import com.myrpc.context.RpcProperties;
 import com.myrpc.net.SerializableConvertor;
+import com.myrpc.net.SerializableConvertorMap;
 import com.myrpc.protocol.BinaryMessage;
 import com.myrpc.protocol.Enums.MessageType;
 import com.myrpc.protocol.Message;
@@ -23,7 +24,7 @@ import java.util.List;
 public class ResponseSerializableHandler extends MessageToMessageCodec<BinaryMessage, RPCResponse> {
 
 
-    SerializableConvertor  serializableConvertor;
+    final SerializableConvertorMap serializableConvertorMap;
     final RpcProperties rpcProperties;
 
     /**
@@ -38,8 +39,8 @@ public class ResponseSerializableHandler extends MessageToMessageCodec<BinaryMes
     }
 
 
-    public ResponseSerializableHandler(SerializableConvertor serializableConvertor, RpcProperties rpcProperties) {
-        this.serializableConvertor = serializableConvertor;
+    public ResponseSerializableHandler( SerializableConvertorMap serializableConvertorMap, RpcProperties rpcProperties) {
+        this.serializableConvertorMap = serializableConvertorMap;
         this.rpcProperties = rpcProperties;
     }
 
@@ -56,7 +57,7 @@ public class ResponseSerializableHandler extends MessageToMessageCodec<BinaryMes
         if (msg.getMessageType().equals(MessageType.response))
         {
             log.info("send {} Response",msg.getMessageType().name());
-            byte[] bytesContent = serializableConvertor.serialize( msg.getContent());
+            byte[] bytesContent = serializableConvertorMap.serialize( msg.getContent(),msg.getSerializableType());
             out.add(msg.toBinaryMessage(bytesContent,rpcProperties.getRpcNetProperties().getProtocolProperties().getHeaders()));
         }
         else {
@@ -70,7 +71,7 @@ public class ResponseSerializableHandler extends MessageToMessageCodec<BinaryMes
         if(MessageType.response.equals(msg.getMessageType()))
         {
             log.info("get {} Response",msg.getMessageType().name());
-            ResponseContent content = (ResponseContent) serializableConvertor.deserialize( msg.getContent(),false);
+            ResponseContent content =  serializableConvertorMap.deserializeResponseContent( msg.getContent(),msg.getSerializableType());
             out.add(msg.toRPCResponse(content));
         }
         else {

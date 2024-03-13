@@ -26,20 +26,22 @@ public class ProviderServerFactory {
     EventLoopGroup group;
     EventLoopGroup childGroup;
     DefaultEventLoopGroup workerGroup;
-    List<ChannelHandler> channelHandlers;
+
+    RpcServiceChannelInitializer rpcServiceChannelInitializer;
+
 
     public ProviderServerFactory( RpcProperties rpcProperties,
                                   @Qualifier("group") EventLoopGroup group,
                                   @Qualifier("childGroup")EventLoopGroup childGroup,
                                   @Qualifier("workerGroup") DefaultEventLoopGroup workerGroup,
-                                  List<ChannelHandler> channelHandlers) throws Exception {
+                                  RpcServiceChannelInitializer rpcServiceChannelInitializer) throws Exception {
         this.rpcProperties=rpcProperties;
         this.channelType = rpcProperties.getRpcNetProperties().getChannelType();
         this.port = rpcProperties.getRpcNetProperties().getPort();
         this.group = group;
         this.childGroup = childGroup;
         this.workerGroup = workerGroup;
-        this.channelHandlers = channelHandlers;
+        this.rpcServiceChannelInitializer = rpcServiceChannelInitializer;
     }
 
     /**
@@ -48,7 +50,7 @@ public class ProviderServerFactory {
      */
     @Bean("com.myrpc.net.ProviderServer")
     public ProviderServer providerServer() throws Exception {
-        return new ProviderServer(group,childGroup,workerGroup,channelType,channelHandlers,rpcProperties,port);
+        return new ProviderServer(group,childGroup,workerGroup,channelType,rpcServiceChannelInitializer,rpcProperties);
     }
 
 

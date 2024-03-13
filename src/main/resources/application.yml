@@ -17,9 +17,16 @@ MyRpc:
     localHost:
     ChannelType: NIO
     RequestTimeOut: 1000
+    ssl:
+      enable: true
+      CACrtPath: 'ca.crt'
+      ServerCrtPath: 'server.crt'
+      PrivateKeyPath: 'server.pem'
     protocol:
       SerializableType: JSON
-      EncryptionMethod: DEFAULT
+      EncryptionMethod:
+        name: AES
+        SecretKey: 'YBO24VQ6fturtdAz+6YQ5Q=='
 
 
 

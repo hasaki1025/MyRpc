@@ -27,6 +27,9 @@ public class BinaryMessage  implements Message{
     int seq;
     Status status;
 
+    SerializableType serializableType;
+    EncryptionMethod encryptionMethod;
+
 
 
 
@@ -41,6 +44,8 @@ public class BinaryMessage  implements Message{
         this.requiredResponse=request.isRequiredResponse();
         this.seq=request.getSeq();
         this.status=request.getStatus();
+        this.serializableType=request.getSerializableType();
+        this.encryptionMethod=request.getEncryptionMethod();
     }
 
     public BinaryMessage(RPCResponse response,byte[] content,Map<Integer,Integer> headers)
@@ -54,6 +59,8 @@ public class BinaryMessage  implements Message{
         this.requiredResponse=response.isRequiredResponse();
         this.seq=response.getSeq();
         this.status=response.getStatus();
+        this.serializableType=response.getSerializableType();
+        this.encryptionMethod=response.getEncryptionMethod();
     }
 
 
@@ -67,6 +74,8 @@ public class BinaryMessage  implements Message{
         this.status = status;
         this.headerSize=MessageUtil.countHeaderSize(headers);
         this.contentSize=content.length;
+        this.serializableType=SerializableType.forInt(HeaderMap.getHeaderValue(headers, SerializableType.class.getCanonicalName()));
+        this.encryptionMethod=EncryptionMethod.forInteger(HeaderMap.getHeaderValue(headers, EncryptionMethod.class.getCanonicalName()));
     }
 
     /**
@@ -77,15 +86,13 @@ public class BinaryMessage  implements Message{
         return content;
     }
 
+
+
     public RPCRequest toRPCRequest(RequestContent content) {
-        SerializableType serializableType = SerializableType.forInt(HeaderMap.getHeaderValue(headers, SerializableType.class.getCanonicalName()));
-        EncryptionMethod encryptionMethod = EncryptionMethod.forInteger(HeaderMap.getHeaderValue(headers, EncryptionMethod.class.getCanonicalName()));
         return new RPCRequest(content, serializableType, encryptionMethod, this.requiredResponse, this.seq);
     }
 
     public RPCResponse toRPCResponse(ResponseContent content) {
-        SerializableType serializableType = SerializableType.forInt(HeaderMap.getHeaderValue(headers, SerializableType.class.getCanonicalName()));
-        EncryptionMethod encryptionMethod = EncryptionMethod.forInteger(HeaderMap.getHeaderValue(headers, EncryptionMethod.class.getCanonicalName()));
         return new RPCResponse(content, serializableType, encryptionMethod, this.seq,this.status);
     }
 }

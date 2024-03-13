@@ -1,18 +1,17 @@
 package com.myrpc.Factory;
 
 import com.myrpc.Util.IPUtil;
-import com.myrpc.context.NacosProperties;
+import com.myrpc.context.*;
 
-import com.myrpc.context.ProtocolProperties;
-import com.myrpc.context.RpcNetProperties;
-import com.myrpc.context.RpcRegisterProperties;
 import com.myrpc.protocol.Enums.ChannelType;
 import com.myrpc.protocol.Enums.EncryptionMethod;
 import com.myrpc.protocol.Enums.RegisterType;
 import com.myrpc.protocol.Enums.SerializableType;
 import org.springframework.core.env.Environment;
+import org.springframework.core.io.ResourceLoader;
 
 import java.net.UnknownHostException;
+import java.security.PublicKey;
 import java.util.Properties;
 
 public class PropertiesFactory {
@@ -31,16 +30,33 @@ public class PropertiesFactory {
     public  static final String REQUEST_TIME_OUT_KEY="MyRpc.net.RequestTimeOut";
     public static final String  LOCAL_HOST="MyRpc.net.localHost";
 
-    public static final String ENCRYPTIONMETHOD_KEY="MyRpc.net.protocol.EncryptionMethod";
+    public static final String ENCRYPTIONMETHOD_KEY="MyRpc.net.protocol.EncryptionMethod.name";
     public static final String SerializableType_key="MyRpc.net.protocol.SerializableType";
     public static final String SERVICE_PORT_KEY="MyRpc.service.port";
 
+    public static final String AES_SECRETKEY_KEY="MyRpc.net.protocol.EncryptionMethod.SecretKey";
 
+    public static final String SSL_ENABLE="MyRpc.net.ssl.enable";
+    public static final String SSL_CA_CRT_PATH="MyRpc.net.ssl.CACrtPath";
+    public static final String SSL_SERVER_PRIVATE_PATH="MyRpc.net.ssl.PrivateKeyPath";
 
+    public static final String SSL_SERVER_CRT_PATH="MyRpc.net.ssl.ServerCrtPath";
 
-
-
-
+    public static SSLProperties getSSLProperties(Environment environment, ResourceLoader resourceLoader)
+    {
+        SSLProperties sslProperties = new SSLProperties();
+        String property = environment.getProperty(SSL_ENABLE);
+        if (!Boolean.parseBoolean(property))
+        {
+            sslProperties.setEnable(false);
+            return sslProperties;
+        }
+        sslProperties.setEnable(true);
+        sslProperties.setPrivateKeyResource(resourceLoader.getResource(environment.getProperty(SSL_SERVER_PRIVATE_PATH)));
+        sslProperties.setCaCrtResource(resourceLoader.getResource(environment.getProperty(SSL_CA_CRT_PATH)));
+        sslProperties.setServerCRTResource(resourceLoader.getResource(environment.getProperty(SSL_SERVER_CRT_PATH)));
+        return sslProperties;
+    }
 
 
 
@@ -76,7 +92,7 @@ public class PropertiesFactory {
         nacosProperties.setIp(split[0]);
         nacosProperties.setPort(Integer.parseInt(split[1]));
 
-        boolean authEnabled = Boolean.getBoolean(environment.getProperty(REGISTER_AUTH_ENABLE_KEY));
+        boolean authEnabled = Boolean.parseBoolean(environment.getProperty(REGISTER_AUTH_ENABLE_KEY));
 
         nacosProperties.setAuthEnabled(authEnabled);
         if (authEnabled)
@@ -93,7 +109,7 @@ public class PropertiesFactory {
     }
 
 
-    public static RpcNetProperties getRpcNetProperties(Environment environment) throws UnknownHostException {
+    public static RpcNetProperties getRpcNetProperties(Environment environment,ResourceLoader resourceLoader) throws UnknownHostException {
         RpcNetProperties netProperties = new RpcNetProperties();
         netProperties.setChannelType(ChannelType.valueOf(environment.getProperty(CHANNEL_TYPE_KEY)));
         netProperties.setRequestTimeOut(Long.parseLong(environment.getProperty(REQUEST_TIME_OUT_KEY)));
@@ -106,6 +122,8 @@ public class PropertiesFactory {
         netProperties.setPort(port);
         netProperties.setIp(ip);
         netProperties.setProtocolProperties(getProtocolProperties(environment));
+
+        netProperties.setSslProperties(getSSLProperties(environment,resourceLoader));
         return netProperties;
     }
 
@@ -113,6 +131,8 @@ public class PropertiesFactory {
     {
         ProtocolProperties protocolProperties = new ProtocolProperties();
         protocolProperties.setEncryptionMethod(EncryptionMethod.valueOf(environment.getProperty(ENCRYPTIONMETHOD_KEY)));
+        if (protocolProperties.getEncryptionMethod().equals(EncryptionMethod.AES))
+            protocolProperties.setAES_SecretKey(environment.getProperty(AES_SECRETKEY_KEY));
         protocolProperties.setSerializableType(SerializableType.valueOf(environment.getProperty(SerializableType_key)));
         return protocolProperties;
     }

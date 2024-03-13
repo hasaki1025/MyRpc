@@ -50,7 +50,7 @@ public class ServiceProxyInvocationHandler implements InvocationHandler {
             RPCServiceInstance instance = context.getServiceInstanceByInterfaceClass(interfaceClass);
             if (instance==null)
                 throw new Exception("no such service Instance");
-            ServiceClient client = serviceClientPool.getConnection(instance.getIp() + ":" + instance.getPort());
+            ServiceClient client = serviceClientPool.getConnection(instance.getIp() + ":" + instance.getPort(),instance.enableSSL());
             RPCRequest rpcRequest = requestFactory.createRequest(instance, method, args,client.getNextSeq());
             Future<ResponseContent> future = client.call(rpcRequest);
             //对于返回类型是基本类型的方法无法采用异步调用

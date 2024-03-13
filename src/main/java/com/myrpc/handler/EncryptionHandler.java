@@ -3,13 +3,13 @@ package com.myrpc.handler;
 
 import com.myrpc.Util.MessageUtil;
 import com.myrpc.net.EncipherConvertor;
+import com.myrpc.net.EncipherConvertorMap;
 import com.myrpc.protocol.BinaryMessage;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageCodec;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 @ChannelHandler.Sharable
@@ -19,7 +19,7 @@ import java.util.List;
 public class EncryptionHandler  extends MessageToMessageCodec<BinaryMessage, BinaryMessage> {
 
 
-    EncipherConvertor encipherConvertor;
+    EncipherConvertorMap encipherConvertorMap;
 
     /**
      * @param ctx
@@ -32,8 +32,8 @@ public class EncryptionHandler  extends MessageToMessageCodec<BinaryMessage, Bin
         super.exceptionCaught(ctx, cause);
     }
 
-    public EncryptionHandler(EncipherConvertor encipherConvertor) {
-        this.encipherConvertor = encipherConvertor;
+    public EncryptionHandler(EncipherConvertorMap encipherConvertorMap) {
+        this.encipherConvertorMap = encipherConvertorMap;
     }
 
     /**
@@ -44,7 +44,8 @@ public class EncryptionHandler  extends MessageToMessageCodec<BinaryMessage, Bin
      */
     @Override
     protected void encode(ChannelHandlerContext ctx, BinaryMessage msg, List<Object> out) throws Exception {
-        msg.setContent(encipherConvertor.encode(msg.getContent()));
+        msg.setContent(encipherConvertorMap.encrypt(msg.getContent(),msg.getEncryptionMethod()));
+        msg.setSize(MessageUtil.countSize(msg));
         out.add(msg);
 
     }
@@ -57,7 +58,7 @@ public class EncryptionHandler  extends MessageToMessageCodec<BinaryMessage, Bin
      */
     @Override
     protected void decode(ChannelHandlerContext ctx, BinaryMessage msg, List<Object> out) throws Exception {
-        msg.setContent(encipherConvertor.decode( msg.getContent()));
+        msg.setContent(encipherConvertorMap.decrypt( msg.getContent(),msg.getEncryptionMethod()));
         msg.setSize(MessageUtil.countSize(msg));
         out.add(msg);
     }

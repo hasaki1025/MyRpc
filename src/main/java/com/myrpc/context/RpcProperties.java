@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.env.Environment;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
 
 import java.net.UnknownHostException;
@@ -22,10 +23,13 @@ public class RpcProperties  {
 
     Environment environment;
 
+    ResourceLoader resourceLoader;
+
     AtomicBoolean isInit=new AtomicBoolean(false);
 
-    public RpcProperties(Environment environment) throws Exception {
+    public RpcProperties(Environment environment,ResourceLoader resourceLoader) throws Exception {
         this.environment = environment;
+        this.resourceLoader=resourceLoader;
         init();
     }
 
@@ -66,7 +70,7 @@ public class RpcProperties  {
     }
 
     public void initRpcNetProperties() throws UnknownHostException {
-        rpcNetProperties = PropertiesFactory.getRpcNetProperties(environment);
+        rpcNetProperties = PropertiesFactory.getRpcNetProperties(environment,resourceLoader);
     }
 
 

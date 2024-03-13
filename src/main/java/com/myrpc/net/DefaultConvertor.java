@@ -10,7 +10,7 @@ public class DefaultConvertor implements EncipherConvertor {
      * @return 原报文
      */
     @Override
-    public byte[] encode(byte[] msg) {
+    public byte[] encrypt(byte[] msg) {
         return msg;
     }
 
@@ -19,7 +19,7 @@ public class DefaultConvertor implements EncipherConvertor {
      * @return 原报文
      */
     @Override
-    public byte[] decode(byte[] msg) {
+    public byte[] decrypt(byte[] msg) {
         return msg;
     }
 }

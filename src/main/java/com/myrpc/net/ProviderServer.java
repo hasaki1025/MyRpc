@@ -11,7 +11,7 @@ import java.util.List;
 public class ProviderServer extends Server {
 
 
-    public ProviderServer(EventLoopGroup bossGroup, EventLoopGroup childGroup, DefaultEventLoopGroup workerGroup, ChannelType channelType, List<ChannelHandler> handlers, RpcProperties rpcProperties, int port) throws Exception {
-        super(bossGroup, childGroup, workerGroup, channelType, handlers, rpcProperties, port);
+    public ProviderServer(EventLoopGroup bossGroup, EventLoopGroup childGroup, DefaultEventLoopGroup workerGroup, ChannelType channelType, RpcServiceChannelInitializer rpcServiceChannelInitializer, RpcProperties rpcProperties) throws Exception {
+        super(bossGroup, childGroup, workerGroup, channelType, rpcServiceChannelInitializer, rpcProperties);
     }
 }

@@ -16,6 +16,8 @@ public class ProtocolProperties{
 
      EncryptionMethod encryptionMethod;
 
+     String AES_SecretKey;
+
      @Getter
      Map<Integer,Integer> headers=new HashMap<>();
 

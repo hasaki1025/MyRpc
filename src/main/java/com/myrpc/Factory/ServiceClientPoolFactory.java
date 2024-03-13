@@ -5,6 +5,7 @@ import com.myrpc.net.ClientChannelInitializer;
 import com.myrpc.net.client.ServiceClientPool;
 import com.myrpc.protocol.Enums.ChannelType;
 import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelInitializer;
 import io.netty.channel.DefaultEventLoopGroup;
 import io.netty.channel.EventLoopGroup;
 import org.springframework.beans.factory.FactoryBean;
@@ -22,19 +23,23 @@ public class ServiceClientPoolFactory  {
 
     EventLoopGroup eventLoopGroup;
     DefaultEventLoopGroup defaultEventLoopGroup;
-    List<ChannelHandler> handlers;
+   final ClientChannelInitializer sslClientChannelInitializer;
+   final ClientChannelInitializer commonClientChannelInitializer;
     long timout;
 
 
     public ServiceClientPoolFactory(RpcProperties rpcProperties,
                                     @Qualifier("group") EventLoopGroup eventLoopGroup,
                                     @Qualifier("workerGroup")DefaultEventLoopGroup defaultEventLoopGroup,
-                                    List<ChannelHandler> handlers) throws Exception {
+                                    @Qualifier("SSLClientChannelInitializer")ClientChannelInitializer sslClientChannelInitializer,
+                                    @Qualifier("CommonClientChannelInitializer")ClientChannelInitializer commonClientChannelInitializer
+                                    ) throws Exception {
         this.channelType = rpcProperties.getRpcNetProperties().getChannelType();
         this.eventLoopGroup = eventLoopGroup;
         this.defaultEventLoopGroup = defaultEventLoopGroup;
-        this.handlers = handlers;
         this.timout=rpcProperties.getRpcNetProperties().getRequestTimeOut();
+        this.sslClientChannelInitializer = sslClientChannelInitializer;
+        this.commonClientChannelInitializer = commonClientChannelInitializer;
     }
 
     /**
@@ -44,7 +49,8 @@ public class ServiceClientPoolFactory  {
     @Bean
     public ServiceClientPool serviceClientPool() throws Exception {
         return new ServiceClientPool(eventLoopGroup,
-                handlers,
+                sslClientChannelInitializer,
+                commonClientChannelInitializer,
                 channelType,
                 timout
                 );

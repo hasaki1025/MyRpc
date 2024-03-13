@@ -36,17 +36,22 @@ public class Server implements Closeable {
     String ip;
     int port;
 
-    public Server(EventLoopGroup bossGroup, EventLoopGroup childGroup, DefaultEventLoopGroup workerGroup, ChannelType channelType, List<ChannelHandler> handlers, RpcProperties rpcProperties, int port) throws Exception {
+    public Server(EventLoopGroup bossGroup,
+                  EventLoopGroup childGroup,
+                  DefaultEventLoopGroup workerGroup,
+                  ChannelType channelType,
+                  RpcServiceChannelInitializer rpcServiceChannelInitializer,
+                  RpcProperties rpcProperties
+    ) throws Exception {
         this.bossGroup = bossGroup;
         this.childGroup = childGroup;
         this.workerGroup = workerGroup;
         this.channelType = channelType;
-        this.rpcServiceChannelInitializer = new RpcServiceChannelInitializer(handlers,rpcProperties.getRpcNetProperties().getRequestTimeOut());
+        this.rpcServiceChannelInitializer = rpcServiceChannelInitializer;
         this.rpcProperties = rpcProperties;
-        this.port = port;
+        this.port=rpcProperties.getRpcNetProperties().getPort();
         init();
     }
-
 
     public void init() {
         try {

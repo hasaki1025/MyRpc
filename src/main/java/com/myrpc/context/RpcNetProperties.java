@@ -15,6 +15,9 @@ public class RpcNetProperties {
     int port;
 
 
+    SSLProperties sslProperties;
+
+
     ProtocolProperties protocolProperties;
 
 

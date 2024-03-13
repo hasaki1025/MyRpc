@@ -6,7 +6,7 @@ public class RSAConvertor implements EncipherConvertor {
      * @return
      */
     @Override
-    public byte[] encode(byte[] msg) {
+    public byte[] encrypt(byte[] msg) {
         return new byte[0];
     }
 
@@ -15,7 +15,7 @@ public class RSAConvertor implements EncipherConvertor {
      * @return
      */
     @Override
-    public byte[] decode(byte[] msg) {
+    public byte[] decrypt(byte[] msg) {
         return new byte[0];
     }
 }
