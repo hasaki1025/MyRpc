@@ -2,6 +2,7 @@ package com.example.net.client;
 
 
 import com.example.net.ClientChannelInitializer;
+import com.example.protocol.RPCRequest;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import lombok.Getter;
@@ -13,7 +14,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * 客户端基本类
+ * 服务消费者连接到服务提供者
  */
 @Slf4j
 @Getter
@@ -65,8 +66,17 @@ public class ServiceClient implements Closeable {
         else {
             log.warn("ServiceClient[{}:{}] is already initialized.",remoteIPAddress,remotePort);
         }
+    }
 
 
+    /**
+     * 采用默认的同步调用
+     * @param request 请求
+     * @return 请求的响应content
+     */
+    public Object call(RPCRequest request)
+    {
+        return null;
     }
 
 
