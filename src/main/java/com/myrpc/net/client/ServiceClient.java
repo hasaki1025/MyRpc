@@ -13,6 +13,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -34,6 +35,8 @@ public class ServiceClient implements ConsumerClient {
     String remoteIPAddress;
     int remotePort;
 
+    List<ChannelHandler> channelHandlers;
+
 
 
     final long timeout;
@@ -48,10 +51,10 @@ public class ServiceClient implements ConsumerClient {
 
     AtomicBoolean isInit=new AtomicBoolean(false);
 
-    public ServiceClient(EventLoopGroup group, DefaultEventLoopGroup workerGroup, ClientChannelInitializer channelInitializer, long timeout, ServiceClientPool clientPool) {
+    public ServiceClient(EventLoopGroup group, DefaultEventLoopGroup workerGroup, List<ChannelHandler> channelHandlers, long timeout, ServiceClientPool clientPool) {
         this.group = group;
         this.workerGroup = workerGroup;
-        this.channelInitializer = channelInitializer;
+        this.channelInitializer = new ClientChannelInitializer(channelHandlers,timeout);
         this.timeout = timeout;
         this.clientPool = clientPool;
     }

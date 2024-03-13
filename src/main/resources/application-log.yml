@@ -2,8 +2,8 @@
 logging:
   level:
     # web日志
-    org.springframework.web: debug
-    com.myrpc: debug
+    org.springframework.web: info
+    com.myrpc: info
     io:
       netty:
         handler:

@@ -7,6 +7,7 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
+import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -41,7 +42,7 @@ public class RpcServiceChannelInitializer extends ChannelInitializer<Channel> {
         log.info("channel {}-->{} initialized",ch.localAddress(),ch.remoteAddress());
         ChannelUtil.initChannelAttribute(ch,timeout);
         ChannelPipeline pipeline = ch.pipeline();
-        pipeline.addLast(new LoggingHandler());
+        pipeline.addLast(new LoggingHandler(LogLevel.INFO));
         pipeline.addLast(
                 new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, MessageUtil.CONST_MESSAGE_HEAD_LENGTH,MessageUtil.LENGTH_FIELD_SIZE,0,0));
         pipeline.addLast(handlersChain.toArray(new ChannelHandler[0]));

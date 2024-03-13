@@ -1,7 +1,7 @@
 package com.myrpc.protocol.Enums;
 
 public enum Status {
-    OK(0),Error(1),NULL(3);
+    OK(0),Error(1),NULL(2);
     private final int value;
 
     Status(int i) {

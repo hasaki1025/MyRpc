@@ -21,7 +21,6 @@ import java.util.List;
 @ChannelHandler.Sharable
 @Slf4j
 @Order(1)
-@Component("com.example.handler.MessageCodec")
 public class MessageCodec extends MessageToMessageCodec<ByteBuf, BinaryMessage> {
 
 
@@ -48,6 +47,9 @@ public class MessageCodec extends MessageToMessageCodec<ByteBuf, BinaryMessage> 
                 if (responseMap.stillWaiting(seq)) {
                     out.add(message);
                 }
+            }
+            else {
+                out.add(message);
             }
         } catch (MessageReadException e) {
             throw new RuntimeException(e);

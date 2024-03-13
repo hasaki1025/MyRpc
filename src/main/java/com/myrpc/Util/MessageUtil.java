@@ -9,6 +9,7 @@ import io.netty.buffer.ByteBuf;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -21,22 +22,22 @@ public class MessageUtil {
     public static final byte[] MAGIC_NUMBER ={'<','>'};
     public static final String MAGIC =new String(MAGIC_NUMBER);
 
-    public static final byte HEADER_END='\n';
+    public static final byte HEADER_END= (byte) 0b11111111;
 
     public static SerializableType DEFAULT_SERIALIZABLETYPE=SerializableType.JSON;
 
     public static int CONST_MESSAGE_SIZE=10;
-    public static int CONST_MESSAGE_HEAD_LENGTH=9;
+    public static int CONST_MESSAGE_HEAD_LENGTH=7;
 
     public static int LENGTH_FIELD_SIZE=2;
 
 
     public static int countSize(BinaryMessage binaryMessage)
     {
-        return CONST_MESSAGE_SIZE+binaryMessage.getHeaders().size()*2+binaryMessage.getContent().length;
-    }public static int countSize(Map<Integer,Integer> headers,byte[] content)
+        return countSize(binaryMessage.getHeaders(), binaryMessage.getContent());
+    }public static int countSize(Map<Integer,Integer> headers, byte[] content)
     {
-        return CONST_MESSAGE_SIZE+headers.size()*2+content.length;
+        return headers.size()*2+1+content.length;
     }
 
     public static int countHeaderSize(Map<Integer, Integer> headers)
@@ -63,6 +64,7 @@ public class MessageUtil {
             requiredResponse  = (b & 0x40) != 0;
         //TODO bug
         Status status = Status.forInt(b & 0x3F);
+
 
         int seq = buf.readInt();
 

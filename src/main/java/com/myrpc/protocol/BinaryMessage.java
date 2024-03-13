@@ -28,12 +28,7 @@ public class BinaryMessage  implements Message{
     Status status;
 
 
-    public void setContent(byte[] content) {
-        this.content = content;
-        this.size=MessageUtil.countSize(this);
-        this.headerSize=MessageUtil.countHeaderSize(headers);
-        this.contentSize=content.length;
-    }
+
 
     public BinaryMessage(RPCRequest request, byte[] content, Map<Integer,Integer> headers)
     {
@@ -72,18 +67,6 @@ public class BinaryMessage  implements Message{
         this.status = status;
         this.headerSize=MessageUtil.countHeaderSize(headers);
         this.contentSize=content.length;
-    }
-
-    public BinaryMessage(Map<Integer, Integer> headers, byte[] content, int headerSize, int contentSize, MessageType messageType, boolean requiredResponse, int size, int seq, Status status) {
-        this.headers = headers;
-        this.content = content;
-        this.headerSize = headerSize;
-        this.contentSize = contentSize;
-        this.messageType = messageType;
-        this.requiredResponse = requiredResponse;
-        this.size = size;
-        this.seq = seq;
-        this.status = status;
     }
 
     /**

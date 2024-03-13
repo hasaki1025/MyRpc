@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.List;
 
 @Slf4j
 @Data
@@ -35,12 +36,12 @@ public class Server implements Closeable {
     String ip;
     int port;
 
-    public Server(EventLoopGroup bossGroup, EventLoopGroup childGroup, DefaultEventLoopGroup workerGroup, ChannelType channelType, RpcServiceChannelInitializer rpcServiceChannelInitializer, RpcProperties rpcProperties, int port) {
+    public Server(EventLoopGroup bossGroup, EventLoopGroup childGroup, DefaultEventLoopGroup workerGroup, ChannelType channelType, List<ChannelHandler> handlers, RpcProperties rpcProperties, int port) throws Exception {
         this.bossGroup = bossGroup;
         this.childGroup = childGroup;
         this.workerGroup = workerGroup;
         this.channelType = channelType;
-        this.rpcServiceChannelInitializer = rpcServiceChannelInitializer;
+        this.rpcServiceChannelInitializer = new RpcServiceChannelInitializer(handlers,rpcProperties.getRpcNetProperties().getRequestTimeOut());
         this.rpcProperties = rpcProperties;
         this.port = port;
         init();

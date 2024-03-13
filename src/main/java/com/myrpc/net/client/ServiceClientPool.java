@@ -18,7 +18,7 @@ public class ServiceClientPool {
      final EventLoopGroup group;
 
      final DefaultEventLoopGroup workerGroup=new DefaultEventLoopGroup();
-     final ClientChannelInitializer channelInitializer;
+     List<ChannelHandler> channelHandlers;
 
 
     final ChannelType channelType;
@@ -28,9 +28,9 @@ public class ServiceClientPool {
     final long timeout;
 
 
-    public ServiceClientPool(EventLoopGroup group, ClientChannelInitializer channelInitializer, ChannelType channelType, long timeout) {
+    public ServiceClientPool(EventLoopGroup group, List<ChannelHandler> channelHandlers, ChannelType channelType, long timeout) {
         this.group = group;
-        this.channelInitializer = channelInitializer;
+        this.channelHandlers=channelHandlers;
         this.channelType = channelType;
         this.timeout = timeout;
     }
@@ -67,7 +67,7 @@ public class ServiceClientPool {
 
     public ServiceClient createConnection(String address)
     {
-        ServiceClient serviceClient = new ServiceClient(group, workerGroup, channelInitializer, timeout,this);
+        ServiceClient serviceClient = new ServiceClient(group, workerGroup, channelHandlers, timeout,this);
         String[] split = address.split(":");
         serviceClient.init(split[0],Integer.parseInt(split[1]),ChannelType.ToChannelClass(channelType));
         return serviceClient;

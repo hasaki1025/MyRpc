@@ -47,6 +47,7 @@ public class EncryptionHandler  extends MessageToMessageCodec<BinaryMessage, Bin
     @Override
     protected void decode(ChannelHandlerContext ctx, BinaryMessage msg, List<Object> out) throws Exception {
         msg.setContent(encipherConvertor.decode( msg.getContent()));
+        msg.setSize(MessageUtil.countSize(msg));
         out.add(msg);
     }
 }
