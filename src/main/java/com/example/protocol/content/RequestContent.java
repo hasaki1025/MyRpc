@@ -4,7 +4,7 @@ import lombok.Data;
 
 import java.lang.reflect.Method;
 @Data
-public class RequestContent {
+public class RequestContent implements Content{
 
     /**
      * 调用类名

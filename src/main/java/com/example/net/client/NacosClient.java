@@ -51,7 +51,6 @@ public class NacosClient implements RegisterClient {
      */
     @Override
     public void deregister(RPCServiceInstance serviceInstance) throws Exception {
-        log.info("deregister to Nacos[{}]",serverAddr);
         if (serviceInstance instanceof Instance)
             registerService.deregisterInstance(serviceInstance.getServiceName(), (Instance) serviceInstance);
         else

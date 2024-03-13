@@ -1,8 +1,13 @@
 package com.example.protocol.Enums;
 
+import com.example.net.EncipherConvertor;
+
+import java.util.HashMap;
+
 public enum EncryptionMethod {
     DEFAULT(0),RSA(1),AES(2);
 
+    public static final int headerID=2;
     private final static EncryptionMethod[] hash={DEFAULT,RSA,AES};
 
 

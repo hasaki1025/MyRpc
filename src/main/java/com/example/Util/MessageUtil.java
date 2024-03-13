@@ -1,6 +1,7 @@
-package com.example.protocol;
+package com.example.Util;
 
 import com.example.exception.MessageReadException;
+import com.example.protocol.BinaryMessage;
 import com.example.protocol.Enums.MessageType;
 import com.example.protocol.Enums.SerializableType;
 import com.example.protocol.Enums.Status;
@@ -87,13 +88,15 @@ public class MessageUtil {
             buf.writeByte(k.byteValue());
             buf.writeByte(v.byteValue());
         });
-
         buf.writeByte(HEADER_END);
-
-
         buf.writeBytes(message.getContent());
-
     }
+
+
+
+
+
+
 
 
 }
