@@ -35,6 +35,11 @@ public class RpcRequestFactory {
         content.setMethodName(method.getName());
         content.setArgs(args);
         content.setServiceName(instance.getServiceName());
+        String[] argClassName = new String[args.length];
+        for (int i = 0; i < args.length; i++) {
+            argClassName[i]=args[i].getClass().getCanonicalName();
+        }
+        content.setArgClass(argClassName);
         return content;
     }
 

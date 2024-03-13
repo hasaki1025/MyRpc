@@ -1,11 +1,14 @@
 package com.myrpc.protocol.content;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.myrpc.net.ResponseContentJsonDeserializer;
 import lombok.Data;
 
 /**
  * 响应信息的包装类，注意必须要在使用前检查请求是否成功
  */
 @Data
+@JsonDeserialize(using = ResponseContentJsonDeserializer.class)
 public class ResponseContent implements Content {
 
     /**
@@ -18,5 +21,10 @@ public class ResponseContent implements Content {
      * 是否调用异常
      */
     boolean isSuccessful;
+
+    /**
+     * 响应结果的类名
+     */
+    String resultClass;
 
 }

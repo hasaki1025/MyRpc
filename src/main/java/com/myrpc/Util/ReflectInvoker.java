@@ -25,6 +25,7 @@ public class ReflectInvoker {
             Object result = method.invoke(target, args);
             responseContent.setResult(result);
             responseContent.setSuccessful(true);
+            responseContent.setResultClass(result.getClass().getCanonicalName());
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             responseContent.setSuccessful(false);
             responseContent.setResult(e.getMessage());

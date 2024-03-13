@@ -17,6 +17,7 @@ public class CompletableFutureFactory  {
                     ResponseContent content = new ResponseContent();
                     content.setSuccessful(false);
                     content.setResult(exception.getMessage());
+                    content.setResultClass(String.class.getCanonicalName());
                     return content;
                 }
         );
@@ -32,6 +33,7 @@ public class CompletableFutureFactory  {
                     ResponseContent content = new ResponseContent();
                     content.setSuccessful(false);
                     content.setResult(exception.getMessage());
+                    content.setResultClass(String.class.getCanonicalName());
                     return content;
                 }
         );

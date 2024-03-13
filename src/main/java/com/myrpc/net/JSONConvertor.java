@@ -7,7 +7,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
-public class JSONConvertor implements SerializableConvertor {
+public class JSONConvertor implements SerializableConvertor{
 
 
 
@@ -15,9 +15,6 @@ public class JSONConvertor implements SerializableConvertor {
 
     final ObjectMapper objectMapper=new ObjectMapper();
 
-    public JSONConvertor() {
-        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
-    }
 
     /**
      * @param content
@@ -26,11 +23,13 @@ public class JSONConvertor implements SerializableConvertor {
 
     public Content deserialize(byte[] content,boolean isRequestContent) throws Exception {
         Class<? extends Content> clazz = isRequestContent ? RequestContent.class : ResponseContent.class;
-        Content object = objectMapper.readValue(new String(content), clazz);
+        Content object = objectMapper.readValue(content, clazz);
         if (object == null)
             throw new Exception("JSON Convertor Exception");
         return  object;
     }
+
+
 
     /**
      * @param content
