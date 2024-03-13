@@ -1,7 +1,8 @@
 package com.example.net;
 
 
-import com.example.context.RpcContext;
+
+import com.example.context.RpcServiceContext;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.DefaultEventLoopGroup;
 
@@ -29,7 +30,7 @@ public class RpcRegisterServerChannelInitializer extends RpcServerChannelInitial
     /**
      * 注册中心上下文
      */
-    RpcContext context;
+    RpcServiceContext context;
 
 
     /**
@@ -37,9 +38,8 @@ public class RpcRegisterServerChannelInitializer extends RpcServerChannelInitial
      * @param handlersChain handler链
      * @param workerGroup 工作线程池
      * @param heartCheckTime 心跳检测间隔
-     * @param register 注册中心
      */
-    public RpcRegisterServerChannelInitializer(List<ChannelHandler> handlersChain, DefaultEventLoopGroup workerGroup, int heartCheckTime, RpcContext context) {
+    public RpcRegisterServerChannelInitializer(List<ChannelHandler> handlersChain, DefaultEventLoopGroup workerGroup, int heartCheckTime, RpcServiceContext context) {
         super(handlersChain);
         this.workerGroup = workerGroup;
         this.heartCheckTime = heartCheckTime;

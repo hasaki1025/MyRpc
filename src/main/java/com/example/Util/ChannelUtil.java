@@ -13,4 +13,11 @@ public class ChannelUtil {
         Attribute<Object> attr = ctx.channel().attr(AttributeKey.valueOf(ResponseMap.CHANNEL_RESPONSE_MAP));
         return (ResponseMap) attr.get();
     }
+
+
+    public static ResponseMap getChannelResponseMap(Channel channel)
+    {
+        Attribute<Object> attr = channel.attr(AttributeKey.valueOf(ResponseMap.CHANNEL_RESPONSE_MAP));
+        return (ResponseMap) attr.get();
+    }
 }

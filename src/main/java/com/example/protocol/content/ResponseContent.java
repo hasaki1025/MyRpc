@@ -2,6 +2,9 @@ package com.example.protocol.content;
 
 import lombok.Data;
 
+/**
+ * 响应信息的包装类，注意必须要在使用前检查请求是否成功
+ */
 @Data
 public class ResponseContent implements Content {
 
@@ -18,6 +21,6 @@ public class ResponseContent implements Content {
     /**
      * 是否调用异常
      */
-    boolean hasException;
+    boolean isSuccessful;
 
 }

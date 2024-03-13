@@ -12,7 +12,7 @@ public class ServiceBeanPostProcessor implements BeanPostProcessor {
 
     RpcServiceContext serviceContext;
 
-    /**
+    /**将符合条件的Bean注入到serviceContext中
      * @param bean
      * @param beanName
      * @return
@@ -33,14 +33,5 @@ public class ServiceBeanPostProcessor implements BeanPostProcessor {
         return BeanPostProcessor.super.postProcessBeforeInitialization(bean, beanName);
     }
 
-    /**
-     * @param bean
-     * @param beanName
-     * @return
-     * @throws BeansException
-     */
-    @Override
-    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-        return BeanPostProcessor.super.postProcessAfterInitialization(bean, beanName);
-    }
+
 }

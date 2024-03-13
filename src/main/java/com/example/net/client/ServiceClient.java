@@ -1,8 +1,10 @@
 package com.example.net.client;
 
 
+import com.example.Util.ChannelUtil;
 import com.example.net.ClientChannelInitializer;
 import com.example.protocol.RPCRequest;
+import com.example.protocol.content.ResponseContent;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import lombok.Getter;
@@ -11,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -30,6 +33,8 @@ public class ServiceClient implements Closeable {
 
     String remoteIPAddress;
     int remotePort;
+
+
 
 
 
@@ -74,9 +79,10 @@ public class ServiceClient implements Closeable {
      * @param request 请求
      * @return 请求的响应content
      */
-    public Object call(RPCRequest request)
+    public Future<ResponseContent> call(RPCRequest request)
     {
-        return null;
+        channel.writeAndFlush(request);
+        return ChannelUtil.getChannelResponseMap(channel).addWaitingRequest(request.getSeq());
     }
 
 
