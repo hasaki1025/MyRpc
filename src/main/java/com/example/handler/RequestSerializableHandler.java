@@ -19,7 +19,7 @@ import java.util.List;
 
 
 @ChannelHandler.Sharable
-@Order(2)
+@Order(3)
 @Slf4j
 
 public class RequestSerializableHandler extends MessageToMessageCodec<BinaryMessage, RPCRequest> {

@@ -1,13 +1,16 @@
 package com.example.net;
 
 import com.example.protocol.RPCRequest;
+import com.example.protocol.RPCResponse;
 import com.example.protocol.content.ResponseContent;
 import io.netty.channel.DefaultEventLoopGroup;
-import io.netty.util.concurrent.Future;
+import io.netty.channel.EventLoop;
+import io.netty.channel.EventLoopGroup;
 
 import java.nio.channels.Channel;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -19,27 +22,31 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class ResponseMap {
 
-    public static final String CHANNEL_RESPONSE_MAP="ChannelResponseMap";
+
 
 
     public final AtomicInteger requestIDCounter=new AtomicInteger(0);
 
-    private final ConcurrentHashMap<Integer, CompletableFuture<ResponseContent>> waitingMap=new ConcurrentHashMap<>();
 
-
-    private final DefaultEventLoopGroup eventLoopGroup;
+    private final ConcurrentHashMap<Integer,CallFuture> waitingMap=new ConcurrentHashMap<>();
 
     long timeout;
 
 
-    public ResponseMap(DefaultEventLoopGroup eventLoopGroup, long timeout) {
-        this.eventLoopGroup = eventLoopGroup;
+    public ResponseMap(long timeout) {
         this.timeout = timeout;
-
     }
 
-    public ResponseMap(DefaultEventLoopGroup eventLoopGroup) {
-        this.eventLoopGroup = eventLoopGroup;
+
+
+    /**
+     * 从Map中移除该等待请求并设置对应响应
+     * @param response
+     */
+    public void setResponse(RPCResponse response)
+    {
+        CallFuture future = waitingMap.remove(response.getSeq());
+        future.getCallTask().setContent(response.getContent());
     }
 
 
@@ -55,25 +62,21 @@ public class ResponseMap {
      * @param seq
      * @return
      */
-    public CompletableFuture<ResponseContent> addWaitingRequest(int seq)
+    public CallFuture addWaitingRequest(int seq, EventLoopGroup executors)
     {
-        CompletableFuture<ResponseContent> future = CompletableFutureFactory.commitCallTask(timeout, eventLoopGroup);
+        CallFuture future = CompletableFutureFactory.commitCallTask(timeout, executors);
         waitingMap.put(seq, future);
         return future;
     }
 
-    public CompletableFuture<ResponseContent> remove(int seq)
-    {
-        return waitingMap.remove(seq);
-    }
-
-    public CompletableFuture<ResponseContent> getAndRemove(int seq)
-    {
-        return waitingMap.remove(seq);
-    }
 
 
+    /**
+     * @param seq 请求序号
+     * @return 该请求是否已获得响应（或者说已经超时）
+     */
     public boolean stillWaiting(int seq) {
-        return waitingMap.containsKey(seq);
+        Future<ResponseContent> future = waitingMap.get(seq);
+        return future!=null && !future.isDone();
     }
 }

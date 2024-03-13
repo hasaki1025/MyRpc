@@ -1,5 +1,7 @@
 package com.example.handler;
 
+import com.example.Util.ChannelUtil;
+import com.example.net.ResponseMap;
 import com.example.protocol.Enums.MessageType;
 import com.example.protocol.Message;
 import com.example.protocol.RPCResponse;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Component;
 
 @ChannelHandler.Sharable
 @Slf4j
+@Order(4)
 public class CallServiceResponseHandler extends SimpleChannelInboundHandler<RPCResponse> {
 
 
@@ -30,30 +33,8 @@ public class CallServiceResponseHandler extends SimpleChannelInboundHandler<RPCR
     }
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, RPCResponse msg) throws Exception {
-      /*  try {
-            int seq = msg.getSeq();
-            log.info("[{}] Request get Response", seq);
-            if (msg.content().hasException()) {
-                msg.content().getException().printStackTrace();
-            }else {
-                ChannelResponse mapResponse = (ChannelResponse) ctx.channel().attr(AttributeKey.valueOf(MessageUtil.CHANNEL_RESPONSE_MAP)).get();
-                CallResponseAction action = (CallResponseAction) mapResponse.getResponseAction(seq);
-                //是否是同步请求
-                if (!action.hasThreadWaiting())
-                {
-                    //异步请求，另起线程执行该操作
-                    action.setContent(msg.content());
-                    threadPool.submit(action::action);
-                }
-                else {
-                    mapResponse.putResponseContent(seq,msg.content());
-                }
-                mapResponse.removeResponseAction(seq);
-            }
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-*/
+        ResponseMap responseMap = ChannelUtil.getChannelResponseMap(ctx.channel());
+        responseMap.setResponse(msg);
+
     }
 }

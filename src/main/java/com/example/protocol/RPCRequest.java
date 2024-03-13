@@ -34,18 +34,16 @@ public class RPCRequest extends AbstractMessage implements Serializable {
 
 
     /**
-     * 该构造方法产生的Request并没有初始化size和headerMap
+     * 该构造方法产生的Request并没有初始化size和headerMap以及seq,seq需要交给Client初始化
      * @param content
      * @param serializableType
      * @param encryptionMethod
-     * @param seq
      * @param requiredResponse
      */
-    public RPCRequest(RequestContent content, SerializableType serializableType, EncryptionMethod encryptionMethod,int seq,boolean requiredResponse) {
+    public RPCRequest(RequestContent content, SerializableType serializableType, EncryptionMethod encryptionMethod,boolean requiredResponse) {
         this.content = content;
         this.serializableType = serializableType;
         this.encryptionMethod = encryptionMethod;
-        this.seq=seq;
         this.requiredResponse=requiredResponse;
     }
 

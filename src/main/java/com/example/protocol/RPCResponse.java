@@ -24,7 +24,22 @@ public class RPCResponse extends AbstractMessage implements Serializable {
 
 
 
-    public RPCResponse(Map<Integer, Integer> headerMap, MessageType messageType, boolean requiredResponse, int size, int seq, Status status,ResponseContent content) {
+    MessageType messageType=MessageType.response;
+    boolean requiredResponse=false;
+    int size;
+    int seq;
+
+    Status status;
+
+    public RPCResponse(ResponseContent content, SerializableType serializableType, EncryptionMethod encryptionMethod, int seq, Status status) {
+        this.content = content;
+        this.serializableType = serializableType;
+        this.encryptionMethod = encryptionMethod;
+        this.seq = seq;
+        this.status = status;
+    }
+
+    public RPCResponse(Map<Integer, Integer> headerMap, MessageType messageType, boolean requiredResponse, int size, int seq, Status status, ResponseContent content) {
         super(headerMap, messageType, requiredResponse, size, seq, status);
 
         int serializableTypeIndex = HeaderMap.getHeaderIndex(SerializableType.class.getCanonicalName());

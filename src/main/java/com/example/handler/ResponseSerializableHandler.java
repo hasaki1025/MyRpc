@@ -16,7 +16,7 @@ import org.springframework.core.annotation.Order;
 import java.util.List;
 
 @ChannelHandler.Sharable
-@Order(2)
+@Order(3)
 @Slf4j
 
 public class ResponseSerializableHandler extends MessageToMessageCodec<BinaryMessage, RPCResponse> {

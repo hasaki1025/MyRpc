@@ -13,10 +13,6 @@ public class ResponseContent implements Content {
      */
     Object result;
 
-    /**
-     * 调用返回的值的类型，如果调用错误则为空
-     */
-    String resultClassName;
 
     /**
      * 是否调用异常

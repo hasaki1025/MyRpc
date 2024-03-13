@@ -1,6 +1,7 @@
 package com.example.Factory;
 
 import com.example.Annotation.NonRemoteMethod;
+import com.example.context.RpcServiceContext;
 import com.example.net.client.ServiceClient;
 import com.example.protocol.RPCRequest;
 import com.example.protocol.content.ResponseContent;
@@ -13,18 +14,15 @@ import java.util.concurrent.Future;
 public class ServiceProxyInvocationHandler implements InvocationHandler {
 
 
-    ServiceClient client;
 
-    RpcRequestFactory requestFactory;
+
+    RpcServiceContext context;
 
     Class<?> interfaceClass;
 
-
-
-    public ServiceProxyInvocationHandler(ServiceClient client, RpcRequestFactory requestFactory,Class<?> interfaceClass) {
-        this.client = client;
-        this.requestFactory = requestFactory;
-        this.interfaceClass=interfaceClass;
+    public ServiceProxyInvocationHandler(RpcServiceContext context, Class<?> interfaceClass) {
+        this.context = context;
+        this.interfaceClass = interfaceClass;
     }
 
     /**
@@ -41,7 +39,8 @@ public class ServiceProxyInvocationHandler implements InvocationHandler {
         if (method.getDeclaringClass().equals(interfaceClass) && !method.isAnnotationPresent(NonRemoteMethod.class))
         {
             Class<?> returnType = method.getReturnType();
-            RPCRequest rpcRequest = requestFactory.createRequest(proxy.getClass(), method, args, client.getNextRequestID());
+            RPCRequest rpcRequest = RpcRequestFactory.createRequest(proxy.getClass(), method, args,context);
+            ServiceClient client = context.getServiceClient(rpcRequest.getContent().getServiceName());
             Future<ResponseContent> future = client.call(rpcRequest);
             //对于返回类型是基本类型的方法无法采用异步调用
             if (returnType.isPrimitive())

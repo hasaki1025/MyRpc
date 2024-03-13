@@ -6,20 +6,18 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public abstract class Client implements Closeable {
-
-
-    AtomicBoolean isInit = new AtomicBoolean(false);
+public interface Client extends Closeable {
 
 
 
-    public abstract void init(String ip, int port);
 
 
 
-    public boolean isInit() {
-        return isInit.get();
-    }
+    public void init(String ip, int port) throws Exception;
+
+
+
+    public boolean isInit();
 
 
 
@@ -30,8 +28,6 @@ public abstract class Client implements Closeable {
      * @throws IOException 连接关闭抛出
      */
     @Override
-    public void close() throws IOException {
-        //NOOP
-    }
+    public void close() throws IOException ;
 
 }

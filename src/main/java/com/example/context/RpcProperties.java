@@ -1,12 +1,17 @@
 package com.example.context;
 
 import com.example.Factory.PropertiesFactory;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
 
 import java.net.UnknownHostException;
 import java.util.concurrent.atomic.AtomicBoolean;
 @Slf4j
+@Data
+@Component
 public class RpcProperties {
 
 

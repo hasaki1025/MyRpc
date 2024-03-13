@@ -5,11 +5,16 @@ import com.example.Util.MessageUtil;
 import com.example.protocol.BinaryMessage;
 import com.example.protocol.Enums.EncryptionMethod;
 import com.example.protocol.HeaderMap;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageCodec;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.annotation.Order;
 
 import java.util.List;
-
+@ChannelHandler.Sharable
+@Slf4j
+@Order(2)
 public class EncryptionHandler  extends MessageToMessageCodec<BinaryMessage, BinaryMessage> {
 
 

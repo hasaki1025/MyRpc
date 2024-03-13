@@ -12,12 +12,14 @@ import io.netty.channel.ChannelHandlerContext;
 
 import io.netty.handler.codec.MessageToMessageCodec;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.annotation.Order;
 
 
 import java.util.List;
 
 @ChannelHandler.Sharable
 @Slf4j
+@Order(1)
 public class MessageCodec extends MessageToMessageCodec<ByteBuf, BinaryMessage> {
 
 
@@ -40,11 +42,11 @@ public class MessageCodec extends MessageToMessageCodec<ByteBuf, BinaryMessage> 
                 ResponseMap responseMap = ChannelUtil.getChannelResponseMap(ctx);
                 //仅仅只是序号检查
                 int seq = message.getSeq();
-                if (!responseMap.stillWaiting(seq)) {
-                    throw new RuntimeException("not match Request of this Response");
+                //检查该序号对应的请求是否等待
+                if (responseMap.stillWaiting(seq)) {
+                    out.add(message);
                 }
             }
-            out.add(message);
         } catch (MessageReadException e) {
             throw new RuntimeException(e);
         }

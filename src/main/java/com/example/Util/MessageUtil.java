@@ -31,6 +31,8 @@ public class MessageUtil {
     public static int CONST_MESSAGE_SIZE=10;
     public static int CONST_MESSAGE_HEAD_LENGTH=9;
 
+    public static int LENGTH_FIELD_SIZE=2;
+
 
     public static int countSize(BinaryMessage binaryMessage)
     {

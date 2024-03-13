@@ -1,29 +1,28 @@
 package com.example.Factory;
 
+import com.example.context.RpcServiceContext;
 import com.example.net.client.ServiceClient;
 import com.example.protocol.content.ResponseContent;
 import org.springframework.cglib.proxy.Enhancer;
+import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Proxy;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
+@Component
 public class ProxyFactory {
 
 
 
+    RpcServiceContext context;
 
-    ServiceClient client;
-
-    RpcRequestFactory requestFactory;
+    public ProxyFactory(RpcServiceContext context) {
+        this.context = context;
+    }
 
     private final ConcurrentHashMap<Class<?>,Object> proxyCache=new ConcurrentHashMap<>();
 
-    public ProxyFactory(ServiceClient client, RpcRequestFactory requestFactory) {
-        this.client = client;
-        this.requestFactory = requestFactory;
-    }
 
     /**
      * @param serviceClass 被代理的接口的Class
@@ -32,7 +31,7 @@ public class ProxyFactory {
     public Object getServiceProxyInstance(Class<?> serviceClass){
         if (proxyCache.containsKey(serviceClass))
             return proxyCache.get(serviceClass);
-        ServiceProxyInvocationHandler handler = new ServiceProxyInvocationHandler(client, requestFactory,serviceClass);
+        ServiceProxyInvocationHandler handler = new ServiceProxyInvocationHandler(context ,serviceClass);
         Object proxy = Proxy.newProxyInstance(serviceClass.getClassLoader(), new Class<?>[]{serviceClass}, handler);
         proxyCache.put(serviceClass, proxy);
         return proxy;

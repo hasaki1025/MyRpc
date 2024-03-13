@@ -5,10 +5,11 @@ import com.example.net.RPCServiceInstance;
 
 import java.util.List;
 
-public interface RegisterClient {
+public interface RegisterClient extends Client {
 
 
-    void init(String address) throws Exception;
+
+
     void register(RPCServiceInstance instance) throws Exception;
 
     void deregister(RPCServiceInstance instance) throws Exception;

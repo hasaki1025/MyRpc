@@ -17,27 +17,15 @@ import java.util.Objects;
 public class RpcRequestFactory {
 
 
-
-
-    RegisterClient registerClient;
-
-    RpcServiceContext context;
-
-    public RpcRequestFactory(RegisterClient registerClient, RpcServiceContext context) {
-        this.registerClient = registerClient;
-        this.context = context;
-    }
-
-    public RPCRequest createRequest(Class<?> interfaceClass, Method method, Object[] args, int seq) throws Exception {
-
+    public static RPCRequest createRequest(Class<?> interfaceClass, Method method, Object[] args,RpcServiceContext context) throws Exception {
         RPCServiceInstance instance = context.getServiceInstanceByInterfaceClass(interfaceClass);
         ProtocolProperties properties = context.getRpcProperties().getRpcNetProperties().getProtocolProperties();
         boolean requiredResponse = !method.getReturnType().equals(void.class);
         RequestContent content = createRequestContent(method, args, instance);
-        return new RPCRequest(content, properties.getSerializableType(), properties.getEncryptionMethod(), seq, requiredResponse);
+        return new RPCRequest(content, properties.getSerializableType(), properties.getEncryptionMethod(), requiredResponse);
     }
 
-    public RequestContent createRequestContent(Method method,Object[] args,RPCServiceInstance instance)
+    public static RequestContent createRequestContent(Method method,Object[] args,RPCServiceInstance instance)
     {
         RequestContent content = new RequestContent();
         content.setMethodName(method.getName());

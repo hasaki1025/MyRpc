@@ -6,18 +6,20 @@ import com.alibaba.nacos.api.naming.NamingFactory;
 import com.alibaba.nacos.api.naming.NamingService;
 import com.alibaba.nacos.api.naming.pojo.Instance;
 import com.example.context.NacosProperties;
+import com.example.context.RpcProperties;
 import com.example.net.NacosRPCServiceInstance;
 import com.example.net.RPCServiceInstance;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.Closeable;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
-public class NacosClient extends Client implements RegisterClient {
+public class NacosClient  implements RegisterClient {
 
 
 
@@ -25,25 +27,45 @@ public class NacosClient extends Client implements RegisterClient {
 
     private  NamingService registerService;
 
+    private RpcProperties rpcProperties;
 
+    AtomicBoolean isInit=new AtomicBoolean(false);
 
-
+    public NacosClient(RpcProperties rpcProperties) {
+        this.rpcProperties = rpcProperties;
+    }
 
     /**
      * @param ip
      * @param port
      */
     @Override
-    public void init(String ip, int port) {
+    public void init(String ip, int port) throws Exception {
         //NOOP
+        init(rpcProperties.getRegisterProperties().getProperties());
+    }
+
+    @Override
+    public boolean isInit() {
+        return isInit.get();
+    }
+
+    @Override
+    public void close() throws IOException {
+        try {
+            registerService.shutDown();
+        } catch (NacosException e) {
+            log.error("{}",e.getErrMsg());
+            throw new RuntimeException(e);
+        }
     }
 
 
     public void init(Properties properties) throws Exception {
         if (isInit.compareAndSet(false,true))
         {
+            log.info("nacos[{}] init...",properties.getProperty(NacosProperties.SERVER_ADDR_KEY));
             registerService=NamingFactory.createNamingService(properties);
-            init(properties.getProperty(NacosProperties.SERVER_ADDR_KEY));
         }
         else
         {
@@ -51,15 +73,6 @@ public class NacosClient extends Client implements RegisterClient {
         }
     }
 
-    /**
-     * @param address
-     * @throws Exception
-     */
-    @Override
-    public void init(String address) throws Exception {
-        //NOOP
-        log.info("nacos[{}] init...",address);
-    }
 
     /**
      * @param serviceInstance

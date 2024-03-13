@@ -1,26 +1,37 @@
 package com.example.context;
 
+import com.example.Factory.RegisterClientFactory;
 import com.example.net.RPCServiceInstance;
 import com.example.net.client.RegisterClient;
 import com.example.net.client.ServiceClient;
+import com.example.net.client.ServiceClientPool;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.util.Assert;
 
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Data
-public class RpcServiceContext {
+@Configuration
+@Slf4j
+public class RpcServiceContext implements InitializingBean {
 
     RegisterClient registerClient;
 
-    ServiceClient serviceClient;
+    //TODO 暂未注入
+    ServiceClientPool serviceClientPool;
+
+
+
 
 
     RpcProperties rpcProperties;
 
-
-
-
+    AtomicBoolean isInit=new AtomicBoolean(false);
 
     /**
      * 用于保存本地提供服务的服务实例
@@ -40,6 +51,26 @@ public class RpcServiceContext {
 
     public final ConcurrentHashMap<String,Object> localServiceObjectMap=new ConcurrentHashMap<>();
 
+
+
+    public void init()
+    {
+        if (isInit.compareAndSet(false,true))
+        {
+            log.info("RPC Context start init....");
+            try {
+                rpcProperties.init();
+                registerClient= RegisterClientFactory.createClient(rpcProperties);
+                registerClient.init(rpcProperties.getRegisterProperties().getIp(), rpcProperties.getRegisterProperties().getPort());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
+        }
+        else {
+            log.warn("context has been init...");
+        }
+    }
 
 
 
@@ -73,6 +104,11 @@ public class RpcServiceContext {
     }
 
 
+    public Object getLocalServiceObject(String serviceName)
+    {
+        return localServiceObjectMap.get(serviceName);
+    }
+
 
     public RPCServiceInstance addLocalService(RPCServiceInstance serviceInstance,Object bean)
     {
@@ -98,14 +134,20 @@ public class RpcServiceContext {
     }
 
 
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        init();
+    }
+
+    public ServiceClient getServiceClient(String serviceName) {
+        RPCServiceInstance instance = remoteServiceMap.get(serviceName);
+        //TODO 负载均衡实现？
+        return serviceClientPool.getConnection(instance.getIp() + ":" + instance.getPort());
+    }
 
 
+    public void turnBackClient(ServiceClient serviceClient)
+    {
 
-
-
-
-
-
-
-
+    }
 }

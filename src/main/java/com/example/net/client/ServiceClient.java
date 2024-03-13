@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 @Slf4j
 @Getter
-public class ServiceClient extends Client {
+public class ServiceClient implements ConsumerClient {
 
 
 
@@ -36,11 +36,20 @@ public class ServiceClient extends Client {
     String remoteIPAddress;
     int remotePort;
 
-    ResponseMap responseMap;
+
+
+    final long timeout;
 
 
 
     AtomicBoolean isInit=new AtomicBoolean(false);
+
+    public ServiceClient(EventLoopGroup group, DefaultEventLoopGroup workerGroup, ClientChannelInitializer channelInitializer, long timeout) {
+        this.group = group;
+        this.workerGroup = workerGroup;
+        this.channelInitializer = channelInitializer;
+        this.timeout = timeout;
+    }
 
 
     /**
@@ -53,18 +62,6 @@ public class ServiceClient extends Client {
     }
 
 
-    public ServiceClient(EventLoopGroup group, DefaultEventLoopGroup workerGroup, List<ChannelHandler> handlers,ResponseMap responseMap) {
-        this.group = group;
-        this.workerGroup = workerGroup;
-        this.channelInitializer = new ClientChannelInitializer(handlers);
-        this.responseMap=responseMap;
-    }
-
-
-    public int getNextRequestID()
-    {
-        return responseMap.getNextRequestID();
-    }
 
     /**
      * netty客户端初始化
@@ -101,8 +98,10 @@ public class ServiceClient extends Client {
     public Future<ResponseContent> call(RPCRequest request) throws Exception {
         if (isInit())
         {
+            //注意在Client中设置seq
+            request.setSeq(ChannelUtil.getChannelResponseMap(channel).getNextRequestID());
             channel.writeAndFlush(request);
-            return ChannelUtil.getChannelResponseMap(channel).addWaitingRequest(request.getSeq());
+            return ChannelUtil.getChannelResponseMap(channel).addWaitingRequest(request.getSeq(),workerGroup);
         }
         throw new Exception("not init this Client");
 
