@@ -1,8 +1,8 @@
 package com.example.protocol.Enums;
 
 public enum SerializableType {
-    JAVA(0),JSON(1);
-    private int value;
+    JAVA(0),JSON(1),PROTO_BUFFER(2);
+    private final int value;
     SerializableType(int i) {
         this.value=i;
     }
@@ -12,7 +12,7 @@ public enum SerializableType {
     }
 
 
-    private final  static SerializableType[] serializableTypes={JAVA,JSON};
+    private final  static SerializableType[] serializableTypes={JAVA,JSON,PROTO_BUFFER};
 
     public static SerializableType forInt(int i)
     {

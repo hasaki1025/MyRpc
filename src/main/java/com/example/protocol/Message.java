@@ -1,18 +1,29 @@
 package com.example.protocol;
 
+import com.example.protocol.Enums.MessageType;
 import com.example.protocol.Enums.SerializableType;
+import com.example.protocol.Enums.Status;
+
+import java.util.Set;
 
 public interface Message {
 
-    int getVersion();
-    SerializableType getSerializableType();
-    boolean isResponse();
-    boolean hasContent();
+
+    MessageType getMessageType();
+    boolean isRequiredResponse();
 
 
-    int size();
-    Object content();
+    /**
+     * @return 此处返回size为扩展首部加数据载荷部分
+     */
+    int getSize();
+
     int getSeq();
 
-    void setSeq(int seq);
+
+    Status getStatus();
+
+
+    Object getContent();
+
 }
