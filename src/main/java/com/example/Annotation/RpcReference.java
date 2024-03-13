@@ -4,14 +4,9 @@ import java.lang.annotation.*;
 
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD})
+@Target({ElementType.FIELD,ElementType.METHOD})
 public @interface RpcReference {
 
-    Class<?> interfaceClass() default void.class;
-
     String serviceName() default "";
-
-
-
 
 }

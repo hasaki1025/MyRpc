@@ -11,4 +11,9 @@ public interface RPCServiceInstance {
      String getIp();
      int getPort();
 
+
+
+
+
+
 }

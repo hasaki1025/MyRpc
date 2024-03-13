@@ -83,7 +83,7 @@ public class PropertiesFactory {
             ip= IPUtil.getLocalIPAddress();
 
         netProperties.setLocalAddress(ip);
-        netProperties.setProperties(getProtocolProperties(environment));
+        netProperties.setProtocolProperties(getProtocolProperties(environment));
         return netProperties;
     }
 

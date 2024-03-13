@@ -3,6 +3,8 @@ package com.example.net.client;
 
 import com.example.Util.ChannelUtil;
 import com.example.net.ClientChannelInitializer;
+import com.example.net.ResponseMap;
+import com.example.protocol.Enums.ChannelType;
 import com.example.protocol.RPCRequest;
 import com.example.protocol.content.ResponseContent;
 import io.netty.bootstrap.Bootstrap;
@@ -21,7 +23,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 @Slf4j
 @Getter
-public class ServiceClient implements Closeable {
+public class ServiceClient extends Client {
 
 
 
@@ -34,17 +36,34 @@ public class ServiceClient implements Closeable {
     String remoteIPAddress;
     int remotePort;
 
-
+    ResponseMap responseMap;
 
 
 
     AtomicBoolean isInit=new AtomicBoolean(false);
 
 
-    public ServiceClient(EventLoopGroup group, DefaultEventLoopGroup workerGroup, List<ChannelHandler> handlers) {
+    /**
+     * @param ip
+     * @param port
+     */
+    @Override
+    public void init(String ip, int port) {
+        init(ip,port, ChannelType.ToChannelClass(ChannelType.NIO));
+    }
+
+
+    public ServiceClient(EventLoopGroup group, DefaultEventLoopGroup workerGroup, List<ChannelHandler> handlers,ResponseMap responseMap) {
         this.group = group;
         this.workerGroup = workerGroup;
         this.channelInitializer = new ClientChannelInitializer(handlers);
+        this.responseMap=responseMap;
+    }
+
+
+    public int getNextRequestID()
+    {
+        return responseMap.getNextRequestID();
     }
 
     /**
@@ -79,11 +98,17 @@ public class ServiceClient implements Closeable {
      * @param request 请求
      * @return 请求的响应content
      */
-    public Future<ResponseContent> call(RPCRequest request)
-    {
-        channel.writeAndFlush(request);
-        return ChannelUtil.getChannelResponseMap(channel).addWaitingRequest(request.getSeq());
+    public Future<ResponseContent> call(RPCRequest request) throws Exception {
+        if (isInit())
+        {
+            channel.writeAndFlush(request);
+            return ChannelUtil.getChannelResponseMap(channel).addWaitingRequest(request.getSeq());
+        }
+        throw new Exception("not init this Client");
+
     }
+
+
 
 
     public boolean isInit()

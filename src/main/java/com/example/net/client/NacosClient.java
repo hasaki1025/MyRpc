@@ -5,6 +5,7 @@ import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.NamingFactory;
 import com.alibaba.nacos.api.naming.NamingService;
 import com.alibaba.nacos.api.naming.pojo.Instance;
+import com.example.context.NacosProperties;
 import com.example.net.NacosRPCServiceInstance;
 import com.example.net.RPCServiceInstance;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +17,7 @@ import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
-public class NacosClient implements RegisterClient {
+public class NacosClient extends Client implements RegisterClient {
 
 
 
@@ -26,18 +27,38 @@ public class NacosClient implements RegisterClient {
 
 
 
+
+
     /**
-     * 初始化
+     * @param ip
+     * @param port
      */
     @Override
-    public void init(String serverAddr) throws NacosException {
-        log.info("Nacos Client[{}] init...",serverAddr);
-       // registerService= NamingFactory.createNamingService(Properties);
+    public void init(String ip, int port) {
+        //NOOP
     }
 
-    public void init(Properties properties) throws NacosException {
-        registerService=NamingFactory.createNamingService(properties);
-        init(properties.getProperty("serverAddr"));
+
+    public void init(Properties properties) throws Exception {
+        if (isInit.compareAndSet(false,true))
+        {
+            registerService=NamingFactory.createNamingService(properties);
+            init(properties.getProperty(NacosProperties.SERVER_ADDR_KEY));
+        }
+        else
+        {
+            log.warn("nacos client has been init");
+        }
+    }
+
+    /**
+     * @param address
+     * @throws Exception
+     */
+    @Override
+    public void init(String address) throws Exception {
+        //NOOP
+        log.info("nacos[{}] init...",address);
     }
 
     /**
@@ -101,7 +122,6 @@ public class NacosClient implements RegisterClient {
         Instance instance = registerService.selectOneHealthyInstance(serviceName);
         return instance instanceof RPCServiceInstance ? (RPCServiceInstance) instance : null;
     }
-
 
 
 

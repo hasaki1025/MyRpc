@@ -1,5 +1,6 @@
 package com.example.Factory;
 
+import com.example.Annotation.NonRemoteMethod;
 import com.example.net.client.ServiceClient;
 import com.example.protocol.RPCRequest;
 import com.example.protocol.content.ResponseContent;
@@ -16,10 +17,14 @@ public class ServiceProxyInvocationHandler implements InvocationHandler {
 
     RpcRequestFactory requestFactory;
 
+    Class<?> interfaceClass;
 
-    public ServiceProxyInvocationHandler(ServiceClient client, RpcRequestFactory requestFactory) {
+
+
+    public ServiceProxyInvocationHandler(ServiceClient client, RpcRequestFactory requestFactory,Class<?> interfaceClass) {
         this.client = client;
         this.requestFactory = requestFactory;
+        this.interfaceClass=interfaceClass;
     }
 
     /**
@@ -32,14 +37,19 @@ public class ServiceProxyInvocationHandler implements InvocationHandler {
      */
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        //仅仅对于接口定义的方法并且没有使用NonRemoteMethod注解标注的方法进行代理
+        if (method.getDeclaringClass().equals(interfaceClass) && !method.isAnnotationPresent(NonRemoteMethod.class))
+        {
+            Class<?> returnType = method.getReturnType();
+            RPCRequest rpcRequest = requestFactory.createRequest(proxy.getClass(), method, args, client.getNextRequestID());
+            Future<ResponseContent> future = client.call(rpcRequest);
+            //对于返回类型是基本类型的方法无法采用异步调用
+            if (returnType.isPrimitive())
+                return future.get();
+            return ProxyFactory.getReturnValueProxy(returnType, future);
+        }
+        return method.invoke(proxy,args);
 
-        Class<?> returnType = method.getReturnType();
-        RPCRequest rpcRequest = requestFactory.getRpcRequest(proxy.getClass(), method, args);
-        Future<ResponseContent> future = client.call(rpcRequest);
-        //TODO 对于基础方法是否需要放行
-        if (returnType.isPrimitive())
-            return future.get();
-        return ProxyFactory.getReturnValueProxy(returnType, future);
     }
 
 

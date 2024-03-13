@@ -11,10 +11,6 @@ public class RequestContent implements Content{
      */
     String serviceName;
 
-    /**
-     * 服务版本号
-     */
-    String version;
 
     /**
      * 调用方法名称

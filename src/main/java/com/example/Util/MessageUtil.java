@@ -1,14 +1,17 @@
 package com.example.Util;
 
+import com.example.context.RpcProperties;
 import com.example.exception.MessageReadException;
 import com.example.protocol.BinaryMessage;
 import com.example.protocol.Enums.MessageType;
 import com.example.protocol.Enums.SerializableType;
 import com.example.protocol.Enums.Status;
+import com.example.protocol.content.RequestContent;
 import io.netty.buffer.ByteBuf;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -24,6 +27,15 @@ public class MessageUtil {
     public static final byte HEADER_END='\n';
 
     public static SerializableType DEFAULT_SERIALIZABLETYPE=SerializableType.JSON;
+
+    public static int CONST_MESSAGE_SIZE=10;
+    public static int CONST_MESSAGE_HEAD_LENGTH=9;
+
+
+    public static int countSize(BinaryMessage binaryMessage)
+    {
+        return CONST_MESSAGE_SIZE+binaryMessage.getHeaderMap().size()*2+binaryMessage.getContent().length;
+    }
 
 
 
@@ -91,6 +103,8 @@ public class MessageUtil {
         buf.writeByte(HEADER_END);
         buf.writeBytes(message.getContent());
     }
+
+
 
 
 

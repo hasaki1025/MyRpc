@@ -1,6 +1,8 @@
 package com.example.handler;
 
+import com.example.Factory.RpcRequestFactory;
 import com.example.Util.SerializableUtil;
+import com.example.context.ProtocolProperties;
 import com.example.protocol.BinaryMessage;
 import com.example.protocol.Enums.MessageType;
 import com.example.Util.MessageUtil;
@@ -25,8 +27,11 @@ public class RequestSerializableHandler extends MessageToMessageCodec<BinaryMess
 
     SerializableUtil serializableUtil;
 
-    public RequestSerializableHandler(SerializableUtil serializableUtil) {
+    ProtocolProperties protocolProperties;
+
+    public RequestSerializableHandler(SerializableUtil serializableUtil, ProtocolProperties protocolProperties) {
         this.serializableUtil = serializableUtil;
+        this.protocolProperties = protocolProperties;
     }
 
     @Override
@@ -43,7 +48,7 @@ public class RequestSerializableHandler extends MessageToMessageCodec<BinaryMess
         {
             log.info("send {} Request",msg.getMessageType().name());
             byte[] bytesContent = serializableUtil.serialize(msg.getSerializableType(), msg.getContent());
-            out.add(msg.toBinaryMessage(bytesContent));
+            out.add(msg.toBinaryMessage(bytesContent,protocolProperties.getHeaders()));
         }
         else {
             out.add(msg);

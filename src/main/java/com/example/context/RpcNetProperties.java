@@ -15,7 +15,7 @@ public class RpcNetProperties {
     String localAddress;
 
 
-    ProtocolProperties properties;
+    ProtocolProperties protocolProperties;
 
 
 }

@@ -1,6 +1,7 @@
 package com.example.handler;
 
 import com.example.Util.EncryptionUtil;
+import com.example.Util.MessageUtil;
 import com.example.protocol.BinaryMessage;
 import com.example.protocol.Enums.EncryptionMethod;
 import com.example.protocol.HeaderMap;
@@ -34,6 +35,7 @@ public class EncryptionHandler  extends MessageToMessageCodec<BinaryMessage, Bin
     protected void encode(ChannelHandlerContext ctx, BinaryMessage msg, List<Object> out) throws Exception {
         EncryptionMethod method = EncryptionMethod.forInteger(HeaderMap.getHeaderValue(msg.getHeaderMap(), EncryptionMethod.class.getCanonicalName()));
         msg.setContent(encryptionUtil.encode(method,msg.getContent()));
+        msg.setSize(MessageUtil.countSize(msg));
         out.add(msg);
     }
 

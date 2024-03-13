@@ -24,12 +24,33 @@ public class RPCRequest extends AbstractMessage implements Serializable {
     SerializableType serializableType;
     EncryptionMethod encryptionMethod;
 
+    Map<Integer,Integer> headerMap;
+    MessageType messageType=MessageType.request;
+    boolean requiredResponse;
+    int size;
+    int seq;
+
+    Status status=Status.NULL;
 
 
+    /**
+     * 该构造方法产生的Request并没有初始化size和headerMap
+     * @param content
+     * @param serializableType
+     * @param encryptionMethod
+     * @param seq
+     * @param requiredResponse
+     */
+    public RPCRequest(RequestContent content, SerializableType serializableType, EncryptionMethod encryptionMethod,int seq,boolean requiredResponse) {
+        this.content = content;
+        this.serializableType = serializableType;
+        this.encryptionMethod = encryptionMethod;
+        this.seq=seq;
+        this.requiredResponse=requiredResponse;
+    }
 
-    public RPCRequest(Map<Integer, Integer> headerMap, MessageType messageType, boolean requiredResponse, int size, int seq, Status status,RequestContent content) {
+    public RPCRequest(Map<Integer, Integer> headerMap, MessageType messageType, boolean requiredResponse, int size, int seq, Status status, RequestContent content) {
         super(headerMap, messageType, requiredResponse, size, seq, status);
-
         int serializableTypeIndex = HeaderMap.getHeaderIndex(SerializableType.class.getCanonicalName());
         int serializableTypeValue = headerMap.get(serializableTypeIndex);
         serializableType=SerializableType.forInt(serializableTypeValue);
@@ -40,8 +61,8 @@ public class RPCRequest extends AbstractMessage implements Serializable {
     }
 
 
-    public  BinaryMessage toBinaryMessage(byte[] bytes)
+    public  BinaryMessage toBinaryMessage(byte[] bytes,Map<Integer,Integer> headers)
     {
-        return new BinaryMessage(messageType, isRequiredResponse(), getHeaderMap(),getSeq(), getStatus(), bytes);
+        return new BinaryMessage(messageType, isRequiredResponse(), headers,getSeq(), getStatus(), bytes);
     }
 }

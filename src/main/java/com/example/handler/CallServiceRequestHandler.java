@@ -21,6 +21,8 @@ public class CallServiceRequestHandler extends SimpleChannelInboundHandler<RPCRe
 
 
 
+
+
     @Override
     public boolean acceptInboundMessage(Object msg) throws Exception {
         return super.acceptInboundMessage(msg) && ((Message) msg).getMessageType().equals(MessageType.request);
@@ -28,22 +30,6 @@ public class CallServiceRequestHandler extends SimpleChannelInboundHandler<RPCRe
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx,RPCRequest msg) {
-        /*CallServicesResponse response = new CallServicesResponse();
-        //TODO 在此处获取Mapping对应的方法和参数等信息
-        try {
-            log.info("get Call ServicesRequest:{}",msg);
-            CallServicesRequest request = msg.content();
-            response.setResult(provider.invokeMapping(request.getParamValues(),request.getMapping()));
-            log.info("Method Invoke successfully....");
-        } catch (InvocationTargetException | IllegalAccessException | NoSuchMethodException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
-        //并没有定义size
-        ctx.writeAndFlush(
-                new ResponseMessage<>(CommandType.Call, MessageType.response, response, msg.getSeq())
-        );*/
-
 
     }
 }
