@@ -24,7 +24,7 @@ MyRpc:
       ServerCrtPath: 'server.crt'
       PrivateKeyPath: 'server.pem'
     protocol:
-      SerializableType: JSON
+      SerializableType: MESSAGE_PACK
       EncryptionMethod:
         name: AES
         SecretKey: 'YBO24VQ6fturtdAz+6YQ5Q=='

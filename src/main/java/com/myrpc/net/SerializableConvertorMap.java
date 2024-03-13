@@ -1,9 +1,6 @@
 package com.myrpc.net;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.myrpc.context.RpcProperties;
 import com.myrpc.protocol.Enums.SerializableType;
-import com.myrpc.protocol.RPCRequest;
 import com.myrpc.protocol.content.Content;
 import com.myrpc.protocol.content.RequestContent;
 import com.myrpc.protocol.content.ResponseContent;
@@ -20,7 +17,7 @@ public class SerializableConvertorMap {
     public SerializableConvertorMap() {
         map.put(SerializableType.JAVA,new JAVAObjectConvertor());
         map.put(SerializableType.JSON,new JSONConvertor());
-        map.put(SerializableType.PROTO_BUFFER,new ProtoBufferConvertor());
+        map.put(SerializableType.MESSAGE_PACK,new MessagePackerConvertor());
     }
     public RequestContent deserializeRequestContent(byte[] content,SerializableType serializableType) throws Exception {
         return (RequestContent) deserialize(content, true, serializableType);

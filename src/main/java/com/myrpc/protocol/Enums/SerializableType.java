@@ -1,13 +1,10 @@
 package com.myrpc.protocol.Enums;
 
-import com.myrpc.net.JAVAObjectConvertor;
-import com.myrpc.net.JSONConvertor;
-import com.myrpc.net.ProtoBufferConvertor;
-import com.myrpc.net.SerializableConvertor;
+import com.myrpc.net.*;
 
 public enum SerializableType {
 
-    JAVA(0),JSON(1),PROTO_BUFFER(2);
+    JAVA(0),JSON(1), MESSAGE_PACK(2);
 
 
     public static final int headerID=1;
@@ -21,10 +18,10 @@ public enum SerializableType {
     }
 
 
-    private final  static SerializableType[] serializableTypes={JAVA,JSON,PROTO_BUFFER};
+    private final  static SerializableType[] serializableTypes={JAVA,JSON, MESSAGE_PACK};
 
     private final static Class<? extends SerializableConvertor>[] serializableTypeClass=new Class[]{
-            JAVAObjectConvertor.class, JSONConvertor.class, ProtoBufferConvertor.class
+            JAVAObjectConvertor.class, JSONConvertor.class, MessagePackerConvertor.class
     };
 
     public  static Class<? extends SerializableConvertor> toSerializableTypeClass(SerializableType serializableType)
