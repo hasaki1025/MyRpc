@@ -21,6 +21,25 @@ public class HeaderMap {
 
 
 
+   public static Map<Integer,Integer> getHeaderMapOfRequest(RPCRequest request)
+   {
+       HashMap<Integer, Integer> map = new HashMap<>();
+       SerializableType serializableType = request.getSerializableType();
+       EncryptionMethod encryptionMethod = request.getEncryptionMethod();
+       map.put(getHeaderIndex(SerializableType.class.getCanonicalName()),serializableType.getValue());
+       map.put(getHeaderIndex(EncryptionMethod.class.getCanonicalName()),encryptionMethod.getValue());
+       return map;
+   }
+   public static Map<Integer,Integer> getHeaderMapOfResponse(RPCResponse response)
+   {
+       HashMap<Integer, Integer> map = new HashMap<>();
+       SerializableType serializableType = response.getSerializableType();
+       EncryptionMethod encryptionMethod = response.getEncryptionMethod();
+       map.put(getHeaderIndex(SerializableType.class.getCanonicalName()),serializableType.getValue());
+       map.put(getHeaderIndex(EncryptionMethod.class.getCanonicalName()),encryptionMethod.getValue());
+       return map;
+   }
+
 
     public static int getHeaderIndex(String headerName)
     {

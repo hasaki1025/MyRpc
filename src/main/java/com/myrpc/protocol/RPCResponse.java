@@ -45,5 +45,11 @@ public class RPCResponse  implements Message {
         return new BinaryMessage(this,bytes,headers);
     }
 
+    public BinaryMessage toBinaryMessage(byte[] content)
+    {
+        Map<Integer, Integer> map = HeaderMap.getHeaderMapOfResponse(this);
+        return toBinaryMessage(content,map);
+    }
+
 
 }

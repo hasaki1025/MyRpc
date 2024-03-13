@@ -43,5 +43,10 @@ public class RPCRequest  implements Message {
     public  BinaryMessage toBinaryMessage(byte[] bytes,Map<Integer,Integer> headers)
     {
         return new BinaryMessage(this,bytes,headers);
+    }public  BinaryMessage toBinaryMessage(byte[] bytes)
+    {
+        return new BinaryMessage(this,bytes,HeaderMap.getHeaderMapOfRequest(this));
     }
+
+
 }

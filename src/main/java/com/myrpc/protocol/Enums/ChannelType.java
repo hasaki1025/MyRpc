@@ -11,6 +11,12 @@ public enum ChannelType {
     NIO(0),EPOLL(1);
 
 
+
+
+
+
+
+
     private static final Class<? extends ServerSocketChannel>[] serverChannelClass=new Class[]{
             NioServerSocketChannel.class, EpollServerSocketChannel.class
     } ;

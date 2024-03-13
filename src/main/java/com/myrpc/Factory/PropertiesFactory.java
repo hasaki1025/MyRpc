@@ -4,13 +4,14 @@ import com.myrpc.Util.IPUtil;
 import com.myrpc.context.*;
 
 import com.myrpc.protocol.Enums.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ResourceLoader;
 
 import java.net.UnknownHostException;
 import java.security.PublicKey;
 import java.util.Properties;
-
+@Slf4j
 public class PropertiesFactory {
 
     public static final String REGISTER_ADDR_KEY="MyRpc.register.address";
@@ -67,7 +68,16 @@ public class PropertiesFactory {
         if (addr.startsWith(NacosProperties.ADDR_PREFIX))
         {
             rpcRegisterProperties=getNacosProperties(environment);
-            rpcRegisterProperties.setLoadBalancePolicyType(LoadBalancePolicyType.valueOf(environment.getProperty(LOAD_BALANCE_POLICY)));
+            String property = environment.getProperty(LOAD_BALANCE_POLICY);
+            LoadBalancePolicyType policyType=null;
+            if (property==null || property.isEmpty() || property.isBlank())
+            {
+                policyType=LoadBalancePolicyType.WeightedRandom;
+            }
+            else {
+                policyType  = LoadBalancePolicyType.valueOf(property);
+            }
+            rpcRegisterProperties.setLoadBalancePolicyType(policyType);
         }
         return rpcRegisterProperties;
     }
@@ -91,9 +101,7 @@ public class PropertiesFactory {
         String[] split = addr.split(":");
         nacosProperties.setIp(split[0]);
         nacosProperties.setPort(Integer.parseInt(split[1]));
-
         boolean authEnabled = Boolean.parseBoolean(environment.getProperty(REGISTER_AUTH_ENABLE_KEY));
-
         nacosProperties.setAuthEnabled(authEnabled);
         if (authEnabled)
         {
@@ -111,8 +119,22 @@ public class PropertiesFactory {
 
     public static RpcNetProperties getRpcNetProperties(Environment environment,ResourceLoader resourceLoader) throws UnknownHostException {
         RpcNetProperties netProperties = new RpcNetProperties();
-        netProperties.setChannelType(ChannelType.valueOf(environment.getProperty(CHANNEL_TYPE_KEY)));
-        netProperties.setRequestTimeOut(Long.parseLong(environment.getProperty(REQUEST_TIME_OUT_KEY)));
+        try {
+            netProperties.setChannelType(ChannelType.valueOf(environment.getProperty(CHANNEL_TYPE_KEY)));
+        }catch (IllegalArgumentException e)
+        {
+            log.warn("no match channelType");
+            netProperties.setChannelType(ChannelType.NIO);
+        }
+
+        try {
+            netProperties.setRequestTimeOut(Long.parseLong(environment.getProperty(REQUEST_TIME_OUT_KEY)));
+        }
+        catch (IllegalArgumentException e)
+        {
+            netProperties.setRequestTimeOut(1000);
+        }
+
         String ip = environment.getProperty(LOCAL_HOST);
         if (!IPUtil.isIPAddress(ip))
             ip= IPUtil.getLocalIPAddress();
@@ -130,10 +152,21 @@ public class PropertiesFactory {
     static ProtocolProperties getProtocolProperties(Environment environment)
     {
         ProtocolProperties protocolProperties = new ProtocolProperties();
-        protocolProperties.setEncryptionMethod(EncryptionMethod.valueOf(environment.getProperty(ENCRYPTIONMETHOD_KEY)));
+        try {
+            protocolProperties.setEncryptionMethod(EncryptionMethod.valueOf(environment.getProperty(ENCRYPTIONMETHOD_KEY)));
+        }catch (IllegalArgumentException e)
+        {
+            log.warn("no match EncryptionMethod,use default");
+            protocolProperties.setEncryptionMethod(EncryptionMethod.DEFAULT);
+        }
         if (protocolProperties.getEncryptionMethod().equals(EncryptionMethod.AES))
             protocolProperties.setAES_SecretKey(environment.getProperty(AES_SECRETKEY_KEY));
-        protocolProperties.setSerializableType(SerializableType.valueOf(environment.getProperty(SerializableType_key)));
+        try {
+            protocolProperties.setSerializableType(SerializableType.valueOf(environment.getProperty(SerializableType_key)));
+        }catch (IllegalArgumentException e)
+        {
+            protocolProperties.setSerializableType(SerializableType.MESSAGE_PACK);
+        }
         return protocolProperties;
     }
 }

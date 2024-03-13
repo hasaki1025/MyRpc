@@ -22,8 +22,6 @@ public class ChannelInitializerHandlerFactory {
    final EncipherConvertorMap encipherConvertorMap;
    final SerializableConvertorMap serializableConvertorMap;
 
-    final  RpcResponseFactory rpcResponseFactory;
-
     final RpcServiceContext context;
 
     final long timeout;
@@ -37,12 +35,10 @@ public class ChannelInitializerHandlerFactory {
     public ChannelInitializerHandlerFactory(RpcProperties rpcProperties,
                                             EncipherConvertorMap encipherConvertorMap,
                                             SerializableConvertorMap serializableConvertorMap,
-                                            RpcResponseFactory rpcResponseFactory,
                                             RpcServiceContext context, ResourceLoader resourceLoader) throws Exception {
         this.rpcProperties = rpcProperties;
         this.encipherConvertorMap = encipherConvertorMap;
         this.serializableConvertorMap = serializableConvertorMap;
-        this.rpcResponseFactory = rpcResponseFactory;
         this.context = context;
         this.timeout = rpcProperties.getRpcNetProperties().getRequestTimeOut();
         this.resourceLoader = resourceLoader;
@@ -54,11 +50,11 @@ public class ChannelInitializerHandlerFactory {
 
         EncryptionHandler encryptionHandler = new EncryptionHandler(encipherConvertorMap);
 
-        RequestSerializableHandler requestSerializableHandler = new RequestSerializableHandler(serializableConvertorMap, rpcProperties);
+        RequestSerializableHandler requestSerializableHandler = new RequestSerializableHandler(serializableConvertorMap);
 
-        ResponseSerializableHandler responseSerializableHandler = new ResponseSerializableHandler(serializableConvertorMap, rpcProperties);
+        ResponseSerializableHandler responseSerializableHandler = new ResponseSerializableHandler(serializableConvertorMap);
 
-        CallServiceRequestHandler callServiceRequestHandler = new CallServiceRequestHandler(rpcResponseFactory, context);
+        CallServiceRequestHandler callServiceRequestHandler = new CallServiceRequestHandler(context);
 
         CallServiceResponseHandler callServiceResponseHandler = new CallServiceResponseHandler();
 

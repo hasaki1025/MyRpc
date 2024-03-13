@@ -24,12 +24,11 @@ public class CallServiceRequestHandler extends SimpleChannelInboundHandler<RPCRe
 
 
 
-    RpcResponseFactory rpcResponseFactory;
+
 
     RpcServiceContext context;
 
-    public CallServiceRequestHandler(RpcResponseFactory rpcResponseFactory, RpcServiceContext context) {
-        this.rpcResponseFactory = rpcResponseFactory;
+    public CallServiceRequestHandler( RpcServiceContext context) {
         this.context = context;
     }
 
@@ -53,7 +52,7 @@ public class CallServiceRequestHandler extends SimpleChannelInboundHandler<RPCRe
     protected void channelRead0(ChannelHandlerContext ctx,RPCRequest msg) throws Exception {
         Object object = context.getLocalServiceObject(msg.getContent().getServiceName());
         ResponseContent responseContent = ReflectInvoker.invoke(object, msg.getContent());
-        RPCResponse response = rpcResponseFactory.createResponse(responseContent,msg.getSeq());
+        RPCResponse response = RpcResponseFactory.createResponse(responseContent,msg);
         ctx.writeAndFlush(response);
     }
 }

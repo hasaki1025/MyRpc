@@ -25,7 +25,7 @@ public class ResponseSerializableHandler extends MessageToMessageCodec<BinaryMes
 
 
     final SerializableConvertorMap serializableConvertorMap;
-    final RpcProperties rpcProperties;
+
 
     /**
      * @param ctx
@@ -39,9 +39,8 @@ public class ResponseSerializableHandler extends MessageToMessageCodec<BinaryMes
     }
 
 
-    public ResponseSerializableHandler( SerializableConvertorMap serializableConvertorMap, RpcProperties rpcProperties) {
+    public ResponseSerializableHandler( SerializableConvertorMap serializableConvertorMap) {
         this.serializableConvertorMap = serializableConvertorMap;
-        this.rpcProperties = rpcProperties;
     }
 
     @Override
@@ -58,7 +57,7 @@ public class ResponseSerializableHandler extends MessageToMessageCodec<BinaryMes
         {
             log.info("send {} Response",msg.getMessageType().name());
             byte[] bytesContent = serializableConvertorMap.serialize( msg.getContent(),msg.getSerializableType());
-            out.add(msg.toBinaryMessage(bytesContent,rpcProperties.getRpcNetProperties().getProtocolProperties().getHeaders()));
+            out.add(msg.toBinaryMessage(bytesContent));
         }
         else {
             out.add(msg);
