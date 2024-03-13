@@ -16,7 +16,5 @@ public interface RegisterClient extends Client {
 
     RPCServiceInstance selectOneHealthyInstance(String serviceName) throws Exception;
 
-    List<RPCServiceInstance> selectHealthyInstance(String serviceName) throws Exception;
-
     void subscribeService(String serviceName) throws Exception;
 }

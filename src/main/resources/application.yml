@@ -9,6 +9,7 @@ MyRpc:
     port: 0
   register:
     address: nacos://127.0.0.1:8848
+    loadBalancePolicy: WeightedRoundRobin
     auth:
       enabled: false
       userName: 123

@@ -12,6 +12,9 @@ public interface RPCServiceInstance {
      boolean enableSSL();
 
 
+     double getWeight();
+
+
 
 
 

@@ -3,10 +3,7 @@ package com.myrpc.Factory;
 import com.myrpc.Util.IPUtil;
 import com.myrpc.context.*;
 
-import com.myrpc.protocol.Enums.ChannelType;
-import com.myrpc.protocol.Enums.EncryptionMethod;
-import com.myrpc.protocol.Enums.RegisterType;
-import com.myrpc.protocol.Enums.SerializableType;
+import com.myrpc.protocol.Enums.*;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ResourceLoader;
 
@@ -42,6 +39,8 @@ public class PropertiesFactory {
 
     public static final String SSL_SERVER_CRT_PATH="MyRpc.net.ssl.ServerCrtPath";
 
+    public static final String LOAD_BALANCE_POLICY="MyRpc.register.loadBalancePolicy";
+
     public static SSLProperties getSSLProperties(Environment environment, ResourceLoader resourceLoader)
     {
         SSLProperties sslProperties = new SSLProperties();
@@ -68,6 +67,7 @@ public class PropertiesFactory {
         if (addr.startsWith(NacosProperties.ADDR_PREFIX))
         {
             rpcRegisterProperties=getNacosProperties(environment);
+            rpcRegisterProperties.setLoadBalancePolicyType(LoadBalancePolicyType.valueOf(environment.getProperty(LOAD_BALANCE_POLICY)));
         }
         return rpcRegisterProperties;
     }

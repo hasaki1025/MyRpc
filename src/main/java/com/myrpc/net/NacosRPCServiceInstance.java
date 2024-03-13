@@ -1,6 +1,7 @@
 package com.myrpc.net;
 
 import com.alibaba.nacos.api.naming.pojo.Instance;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,8 +16,19 @@ public class NacosRPCServiceInstance extends  Instance implements RPCServiceInst
 
     boolean enableSSL=false;
 
+    double currentWeight=0;
+
+
     public boolean isEnableSSL() {
         return enableSSL;
+    }
+
+    public double getCurrentWeight() {
+        return currentWeight;
+    }
+
+    public void setCurrentWeight(double currentWeight) {
+        this.currentWeight = currentWeight;
     }
 
     public void setEnableSSL(boolean enableSSL) {

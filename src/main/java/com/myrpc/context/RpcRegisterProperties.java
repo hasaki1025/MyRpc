@@ -1,5 +1,6 @@
 package com.myrpc.context;
 
+import com.myrpc.protocol.Enums.LoadBalancePolicyType;
 import com.myrpc.protocol.Enums.RegisterType;
 import lombok.Data;
 import lombok.Getter;
@@ -16,6 +17,10 @@ public class RpcRegisterProperties {
     String ip;
     int port;
     RegisterType registerType;
+
+    LoadBalancePolicyType loadBalancePolicyType;
+
+
 
 
 }
