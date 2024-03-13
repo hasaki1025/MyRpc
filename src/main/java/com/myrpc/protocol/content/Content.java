@@ -1,4 +1,6 @@
 package com.myrpc.protocol.content;
 
-public interface Content {
+import java.io.Serializable;
+
+public interface Content extends Serializable {
 }

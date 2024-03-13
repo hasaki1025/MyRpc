@@ -21,6 +21,17 @@ public class EncryptionHandler  extends MessageToMessageCodec<BinaryMessage, Bin
 
     EncipherConvertor encipherConvertor;
 
+    /**
+     * @param ctx
+     * @param cause
+     * @throws Exception
+     */
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        log.error("EncryptionHandler get Error {}" ,cause.getMessage());
+        super.exceptionCaught(ctx, cause);
+    }
+
     public EncryptionHandler(EncipherConvertor encipherConvertor) {
         this.encipherConvertor = encipherConvertor;
     }

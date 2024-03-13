@@ -26,6 +26,17 @@ public class ResponseSerializableHandler extends MessageToMessageCodec<BinaryMes
     SerializableConvertor  serializableConvertor;
     final RpcProperties rpcProperties;
 
+    /**
+     * @param ctx
+     * @param cause
+     * @throws Exception
+     */
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        log.error("ResponseSerializableHandler get Error {}" ,cause.getMessage());
+        super.exceptionCaught(ctx, cause);
+    }
+
 
     public ResponseSerializableHandler(SerializableConvertor serializableConvertor, RpcProperties rpcProperties) {
         this.serializableConvertor = serializableConvertor;

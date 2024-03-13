@@ -13,7 +13,7 @@ import java.util.Map;
 
 @Getter
 @Setter
-public class RPCRequest  implements Serializable,Message {
+public class RPCRequest  implements Message {
 
     RequestContent content;
     SerializableType serializableType;

@@ -29,6 +29,19 @@ public class RequestSerializableHandler extends MessageToMessageCodec<BinaryMess
     final SerializableConvertor serializableConvertor;
     private final RpcProperties rpcProperties;
 
+
+    /**
+     * @param ctx
+     * @param cause
+     * @throws Exception
+     */
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        log.error("RequestSerializableHandler get Error {}" ,cause.getMessage());
+        super.exceptionCaught(ctx, cause);
+    }
+
+
     public RequestSerializableHandler(SerializableConvertor serializableConvertor, RpcProperties rpcProperties) {
         this.serializableConvertor = serializableConvertor;
         this.rpcProperties = rpcProperties;

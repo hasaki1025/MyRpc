@@ -33,6 +33,17 @@ public class CallServiceRequestHandler extends SimpleChannelInboundHandler<RPCRe
         this.context = context;
     }
 
+    /**
+     * @param ctx
+     * @param cause
+     * @throws Exception
+     */
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        log.error("Call Request inbound error{}",cause.getMessage());
+        super.exceptionCaught(ctx, cause);
+    }
+
     @Override
     public boolean acceptInboundMessage(Object msg) throws Exception {
         return super.acceptInboundMessage(msg) && ((Message) msg).getMessageType().equals(MessageType.request);

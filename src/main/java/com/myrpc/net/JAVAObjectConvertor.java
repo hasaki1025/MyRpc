@@ -40,6 +40,7 @@ public class JAVAObjectConvertor implements SerializableConvertor {
 
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         ObjectOutputStream stream = new ObjectOutputStream(byteArrayOutputStream);
+        //TODO BUG
         stream.writeObject(content);
         stream.flush();
         return byteArrayOutputStream.toByteArray();

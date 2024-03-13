@@ -4,9 +4,11 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.myrpc.net.RequestContentJsonDeserializer;
 import lombok.Data;
 
+import java.io.Serializable;
+
 @Data
 @JsonDeserialize(using = RequestContentJsonDeserializer.class)
-public class RequestContent implements Content{
+public class RequestContent implements Content, Serializable {
 
     /**
      * 调用类名

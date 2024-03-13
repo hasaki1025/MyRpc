@@ -13,7 +13,7 @@ import java.io.Serializable;
 import java.util.Map;
 @Getter
 @Setter
-public class RPCResponse  implements Serializable,Message {
+public class RPCResponse  implements Message {
 
 
     ResponseContent content;

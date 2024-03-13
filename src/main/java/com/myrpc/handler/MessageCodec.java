@@ -24,7 +24,16 @@ import java.util.List;
 public class MessageCodec extends MessageToMessageCodec<ByteBuf, BinaryMessage> {
 
 
-
+    /**
+     * @param ctx
+     * @param cause
+     * @throws Exception
+     */
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        log.error("MessageCodec get Error {}" ,cause.getMessage());
+        super.exceptionCaught(ctx, cause);
+    }
 
     @Override
     protected void encode(ChannelHandlerContext ctx, BinaryMessage msg, List<Object> out) throws Exception {

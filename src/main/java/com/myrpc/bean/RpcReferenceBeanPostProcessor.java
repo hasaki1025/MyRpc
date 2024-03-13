@@ -66,7 +66,9 @@ public class RpcReferenceBeanPostProcessor implements BeanPostProcessor {
                         Class<?> fieldClass = field.getType();
                         //将标注有RpcReference注解的变量注入代理对象
                         field.set(bean,proxyFactory.getServiceProxyInstance(fieldClass));
-                        context.addRemoteService(fieldClass, RpcReferenceUtil.getServiceName(field.getAnnotation(RpcReference.class),fieldClass));
+                        String serviceName = RpcReferenceUtil.getServiceName(field.getAnnotation(RpcReference.class), fieldClass);
+                        context.addServiceInterface(fieldClass, serviceName);
+                        context.addSubscribeService(serviceName);
                     }
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException(e);

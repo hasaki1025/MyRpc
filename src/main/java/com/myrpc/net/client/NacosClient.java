@@ -3,6 +3,9 @@ package com.myrpc.net.client;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.NamingFactory;
 import com.alibaba.nacos.api.naming.NamingService;
+import com.alibaba.nacos.api.naming.listener.Event;
+import com.alibaba.nacos.api.naming.listener.EventListener;
+import com.alibaba.nacos.api.naming.listener.NamingEvent;
 import com.alibaba.nacos.api.naming.pojo.Instance;
 import com.myrpc.context.NacosProperties;
 import com.myrpc.context.RpcProperties;
@@ -14,10 +17,12 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
-public class NacosClient  implements RegisterClient {
+public class NacosClient  implements RegisterClient , EventListener {
 
 
 
@@ -26,6 +31,10 @@ public class NacosClient  implements RegisterClient {
     private  NamingService registerService;
 
     private RpcProperties rpcProperties;
+
+
+    private final ConcurrentHashMap<String, CopyOnWriteArrayList<RPCServiceInstance>> serviceMap=new ConcurrentHashMap<>();
+
 
     AtomicBoolean isInit=new AtomicBoolean(false);
 
@@ -95,46 +104,69 @@ public class NacosClient  implements RegisterClient {
             throw new Exception("RPCServiceInstance is not instanceof Instance");
     }
 
+
     /**
+     * 从本地保存的所有服务实例中返回第一个
+     * @param serviceName
      * @return
      */
     @Override
-    public List<RPCServiceInstance> getAllInstances(String serviceName) throws NacosException {
+    public RPCServiceInstance selectOneHealthyInstance(String serviceName) throws Exception {
+        List<RPCServiceInstance> rpcServiceInstances = selectHealthyInstance(serviceName);
+        if (rpcServiceInstances.isEmpty())
+            throw new RuntimeException("NO service match in register");
+        return rpcServiceInstances.get(0);
+    }
 
-        LinkedList<RPCServiceInstance> instances = new LinkedList<>();
-        registerService.getAllInstances(serviceName).forEach(instance -> {
-            if (instance instanceof RPCServiceInstance) {
-                instances.add((RPCServiceInstance) instance);
+
+
+
+    /**
+     * 返回多个健康实例
+     * @param serviceName
+     * @return
+     * @throws Exception
+     */
+    @Override
+    public List<RPCServiceInstance> selectHealthyInstance(String serviceName) throws Exception {
+        return serviceMap.computeIfAbsent(serviceName, (name) -> {
+            try {
+                List<Instance> instances = registerService.selectInstances(name, true);
+                CopyOnWriteArrayList<RPCServiceInstance> list = new CopyOnWriteArrayList<>();
+                instances.forEach(instance -> {
+                    list.add(new NacosRPCServiceInstance(instance));
+                });
+                return list;
+            } catch (NacosException e) {
+                throw new RuntimeException(e);
             }
         });
-        return instances;
     }
 
     /**
+     * 订阅服务当服务列表发生变化时更新本地数据集
      * @param serviceName
-     * @param healthy
-     * @return
      */
     @Override
-    public List<RPCServiceInstance> selectInstances(String serviceName, boolean healthy) throws NacosException {
-        LinkedList<RPCServiceInstance> instances = new LinkedList<>();
-        registerService.selectInstances(serviceName,healthy).forEach(instance -> {
-            if (instance instanceof  RPCServiceInstance)
-                instances.add((RPCServiceInstance) instance);
-        });
-        return instances;
+    public void subscribeService(String serviceName) throws NacosException {
+        registerService.subscribe(serviceName,this);
     }
+
 
     /**
-     * @param serviceName
-     * @return
+     * 当订阅的服务实例列表发生变化时更新本地服务集
+     * @param event event
      */
     @Override
-    public RPCServiceInstance selectOneHealthyInstance(String serviceName) throws NacosException {
-        Instance instance = registerService.selectOneHealthyInstance(serviceName);
-        return new NacosRPCServiceInstance(instance);
+    public void onEvent(Event event) {
+        if (event.getClass().equals(NamingEvent.class)) {
+            String serviceName = ((NamingEvent) event).getServiceName();
+            List<Instance> instances = ((NamingEvent) event).getInstances();
+            CopyOnWriteArrayList<RPCServiceInstance> list = new CopyOnWriteArrayList<>();
+            instances.forEach(instance -> {
+                list.add(new NacosRPCServiceInstance(instance));
+            });
+            serviceMap.put(serviceName,list);
+        }
     }
-
-
-
 }

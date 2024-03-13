@@ -1,5 +1,7 @@
 package com.myrpc.context;
 
+import com.alibaba.nacos.api.naming.listener.Event;
+import com.alibaba.nacos.api.naming.listener.EventListener;
 import com.myrpc.Factory.ServiceInstanceFactory;
 import com.myrpc.net.RPCServiceInstance;
 import com.myrpc.net.client.RegisterClient;
@@ -10,13 +12,15 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.Assert;
 
+
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Data
 @Configuration
 @Slf4j
-public class RpcServiceContext   {
+public class RpcServiceContext  {
 
     final RegisterClient registerClient;
     final RpcProperties rpcProperties;
@@ -29,12 +33,6 @@ public class RpcServiceContext   {
      */
     private final ConcurrentHashMap<String, RPCServiceInstance> localServiceMap=new ConcurrentHashMap<>();
 
-
-    /**
-     * 用于保存远程服务实例信息Map，TODO 是否需要定期清理
-     */
-    private final ConcurrentHashMap<String,RPCServiceInstance> remoteServiceMap=new ConcurrentHashMap<>();
-
     /**
      * 用于接口Class与其对应服务名称的映射关系
      */
@@ -42,16 +40,19 @@ public class RpcServiceContext   {
 
     public final ConcurrentHashMap<String,Object> localServiceObject=new ConcurrentHashMap<>();
 
+    public final CopyOnWriteArraySet<String> subscribeServiceSet=new CopyOnWriteArraySet<>();
+
 
     public RpcServiceContext(RegisterClient registerClient, RpcProperties rpcProperties) {
         this.registerClient = registerClient;
         this.rpcProperties = rpcProperties;
-        init();
     }
 
 
+
+
+
     public void addLocalService(RPCServiceInstance serviceInstance,Object bean) throws Exception {
-        Class<?> beanClass = bean.getClass();
         localServiceMap.put(serviceInstance.getServiceName(),serviceInstance);
         localServiceObject.put(serviceInstance.getServiceName(),bean);
     }
@@ -61,6 +62,8 @@ public class RpcServiceContext   {
         if (isInit.compareAndSet(false,true))
         {
             log.info("RPC Context start init....");
+            registerLocalService();
+            subscribeRemoteService();
         }
         else {
             log.warn("context has been init...");
@@ -68,10 +71,23 @@ public class RpcServiceContext   {
     }
 
 
+    void subscribeRemoteService()
+    {
+        log.info("send Subscribe Request To Register");
+        subscribeServiceSet.forEach(s -> {
+            try {
+                registerClient.subscribeService(s);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
 
 
      void registerLocalService()
     {
+        log.info("start register local service");
         if (isInit.get())
         {
             localServiceMap.values().forEach(rpcServiceInstance -> {
@@ -84,63 +100,41 @@ public class RpcServiceContext   {
         }
     }
 
+    public void addSubscribeService(String serviceName)
+    {
+        subscribeServiceSet.add(serviceName);
+    }
+
 
     public RPCServiceInstance getServiceInstanceByInterfaceClass(Class<?> interfaceClass) throws Exception {
-        String serviceName = serviceInterfaceMap.get(interfaceClass);
-        Assert.isTrue(serviceName!=null,"not service match this interface");
-        return remoteServiceMap.computeIfAbsent(serviceName,key->{
-            try {
-                return registerClient.selectOneHealthyInstance(key);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        });
-
+        if (isInit.get())
+        {
+            String serviceName = serviceInterfaceMap.get(interfaceClass);
+            Assert.isTrue(serviceName!=null,"not service match this interface");
+            return registerClient.selectOneHealthyInstance(serviceName);
+        }
+        throw new RuntimeException("no init context");
     }
 
-    //TODO registerClient尚未初始化
-    public void addRemoteService(Class<?> interfaceClass,String serviceName)
-    {
-        addServiceInterface(interfaceClass,serviceName);
-    }
+
 
 
     public Object getLocalServiceObject(String serviceName)
     {
-        return localServiceObject.get(serviceName);
+        if (isInit.get())
+        {
+            return localServiceObject.get(serviceName);
+        }
+        throw new RuntimeException("no init context");
     }
 
 
-
-
-
-
-
-    /**默认采用类的规范名称作为服务名称
-     * @param interfaceClass
-     * @return
-     */
-    public String addServiceInterface(Class<?> interfaceClass)
-    {
-        return addServiceInterface(interfaceClass, interfaceClass.getCanonicalName());
-    }
 
     public String addServiceInterface(Class<?> interfaceClass,String serviceName)
     {
         return serviceInterfaceMap.put(interfaceClass, serviceName);
     }
 
-
-
-    public RPCServiceInstance getServiceAddress(String serviceName) {
-        return remoteServiceMap.computeIfAbsent(serviceName,name->{
-            try {
-                return registerClient.selectOneHealthyInstance(name);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        });
-    }
 
 
 
