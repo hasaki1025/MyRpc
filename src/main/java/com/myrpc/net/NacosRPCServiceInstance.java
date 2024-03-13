@@ -5,6 +5,7 @@ import com.alibaba.nacos.api.naming.pojo.Instance;
 
 public class NacosRPCServiceInstance extends  Instance implements RPCServiceInstance {
 
+    private final static String split_string="@@";
 
     public NacosRPCServiceInstance() {
         super();
@@ -12,7 +13,10 @@ public class NacosRPCServiceInstance extends  Instance implements RPCServiceInst
 
     public NacosRPCServiceInstance(Instance instance) {
         super();
-        this.setServiceName(instance.getServiceName());
+        String serviceName = instance.getServiceName();
+        String[] split = serviceName.split(split_string);
+        serviceName= split[1];
+        this.setServiceName(serviceName);
         this.setInstanceId(instance.getInstanceId());
         this.setEnabled(instance.isEnabled());
         this.setEphemeral(instance.isEphemeral());

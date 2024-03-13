@@ -1,5 +1,6 @@
 package com.myrpc.Factory;
 
+import com.myrpc.context.RpcProperties;
 import com.myrpc.net.ProviderServer;
 import com.myrpc.net.RpcServiceChannelInitializer;
 import com.myrpc.protocol.Enums.ChannelType;
@@ -8,14 +9,15 @@ import io.netty.channel.EventLoopGroup;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ProviderServerFactory implements FactoryBean<ProviderServer> {
+public class ProviderServerFactory {
 
 
-
-    String channelType;
+    RpcProperties rpcProperties;
+    ChannelType channelType;
     int port;
 
     EventLoopGroup group;
@@ -23,14 +25,14 @@ public class ProviderServerFactory implements FactoryBean<ProviderServer> {
     DefaultEventLoopGroup workerGroup;
     RpcServiceChannelInitializer rpcServiceChannelInitializer;
 
-    public ProviderServerFactory( @Value("${MyRpc.net.ChannelType}") String channelType,
-                                  @Value("${MyRpc.service.port}") String port,
+    public ProviderServerFactory( RpcProperties rpcProperties,
                                   @Qualifier("group") EventLoopGroup group,
                                   @Qualifier("childGroup")EventLoopGroup childGroup,
                                   @Qualifier("workerGroup") DefaultEventLoopGroup workerGroup,
-                                  RpcServiceChannelInitializer rpcServiceChannelInitializer) {
-        this.channelType = channelType;
-        this.port = Integer.parseInt(port);
+                                  RpcServiceChannelInitializer rpcServiceChannelInitializer) throws Exception {
+        this.rpcProperties=rpcProperties;
+        this.channelType = rpcProperties.getRpcNetProperties().getChannelType();
+        this.port = rpcProperties.getRpcNetProperties().getPort();
         this.group = group;
         this.childGroup = childGroup;
         this.workerGroup = workerGroup;
@@ -41,24 +43,10 @@ public class ProviderServerFactory implements FactoryBean<ProviderServer> {
      * @return
      * @throws Exception
      */
-    @Override
-    public ProviderServer getObject() throws Exception {
-        return new ProviderServer(group,childGroup,workerGroup, ChannelType.valueOf(channelType),rpcServiceChannelInitializer,port);
+    @Bean("com.myrpc.net.ProviderServer")
+    public ProviderServer providerServer() throws Exception {
+        return new ProviderServer(group,childGroup,workerGroup,channelType,rpcServiceChannelInitializer,rpcProperties,port);
     }
 
-    /**
-     * @return
-     */
-    @Override
-    public Class<?> getObjectType() {
-        return ProviderServer.class;
-    }
 
-    /**
-     * @return
-     */
-    @Override
-    public boolean isSingleton() {
-        return true;
-    }
 }

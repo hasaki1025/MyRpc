@@ -1,19 +1,13 @@
 package com.myrpc.context;
 
-import com.myrpc.Annotation.RpcService;
-import com.myrpc.Factory.RegisterClientFactory;
 import com.myrpc.Factory.ServiceInstanceFactory;
-import com.myrpc.net.ProviderServer;
 import com.myrpc.net.RPCServiceInstance;
 import com.myrpc.net.client.RegisterClient;
-import com.myrpc.net.client.ServiceClient;
-import com.myrpc.net.client.ServiceClientPool;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.context.ApplicationListener;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.util.Assert;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,15 +16,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Data
 @Configuration
 @Slf4j
-public class RpcServiceContext {
+public class RpcServiceContext   {
 
     final RegisterClient registerClient;
-
-    final ServiceClientPool serviceClientPool;
-
     final RpcProperties rpcProperties;
 
-    final ProviderServer server;
 
     AtomicBoolean isInit=new AtomicBoolean(false);
 
@@ -53,33 +43,17 @@ public class RpcServiceContext {
     public final ConcurrentHashMap<String,Object> localServiceObject=new ConcurrentHashMap<>();
 
 
-    public RpcServiceContext(RegisterClient registerClient, ServiceClientPool serviceClientPool, RpcProperties rpcProperties, ProviderServer server) {
+    public RpcServiceContext(RegisterClient registerClient, RpcProperties rpcProperties) {
         this.registerClient = registerClient;
-        this.serviceClientPool = serviceClientPool;
         this.rpcProperties = rpcProperties;
-        this.server = server;
+        init();
     }
 
 
-    public void addLocalService(Object bean)
-    {
-        String serviceName;
-
+    public void addLocalService(RPCServiceInstance serviceInstance,Object bean) throws Exception {
         Class<?> beanClass = bean.getClass();
-        RpcService rpcService = beanClass.getAnnotation(RpcService.class);
-        if (!rpcService.serviceName().isEmpty())
-        {
-            serviceName= rpcService.serviceName();
-        }
-        else if (!rpcService.interfaceClass().equals(void.class)){
-               serviceName=rpcService.interfaceClass().getCanonicalName();
-        }
-        else {
-            Class<?>[] interfaces = beanClass.getInterfaces();
-            Assert.isTrue(interfaces.length>0,"illegal RpcService");
-            serviceName= interfaces[0].getCanonicalName();
-        }
-        localServiceObject.put(serviceName,bean);
+        localServiceMap.put(serviceInstance.getServiceName(),serviceInstance);
+        localServiceObject.put(serviceInstance.getServiceName(),bean);
     }
 
     public void init()
@@ -87,16 +61,6 @@ public class RpcServiceContext {
         if (isInit.compareAndSet(false,true))
         {
             log.info("RPC Context start init....");
-            try {
-                rpcProperties.init();
-                registerClient.init(rpcProperties.getRegisterProperties().getIp(), rpcProperties.getRegisterProperties().getPort());
-                server.init();
-                rpcProperties.getRpcNetProperties().setPort(server.getPort());
-                initLocalService();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-
         }
         else {
             log.warn("context has been init...");
@@ -104,27 +68,9 @@ public class RpcServiceContext {
     }
 
 
-    /**
-     * 初始化本地服务实例并注册
-     */
-    private void initLocalService()
-    {
-        if (isInit.get())
-        {
-            localServiceObject.values().forEach(object -> {
-                try {
-                    RPCServiceInstance instance = ServiceInstanceFactory.getServiceInstance(rpcProperties, object.getClass());
-                    localServiceMap.put(instance.getServiceName(),instance);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            });
 
-            registerLocalService();
-        }
-    }
 
-    private void registerLocalService()
+     void registerLocalService()
     {
         if (isInit.get())
         {
@@ -137,9 +83,6 @@ public class RpcServiceContext {
             });
         }
     }
-
-
-
 
 
     public RPCServiceInstance getServiceInstanceByInterfaceClass(Class<?> interfaceClass) throws Exception {
@@ -158,7 +101,6 @@ public class RpcServiceContext {
     //TODO registerClient尚未初始化
     public void addRemoteService(Class<?> interfaceClass,String serviceName)
     {
-        serviceName=serviceName.isEmpty() ? interfaceClass.getCanonicalName() : serviceName;
         addServiceInterface(interfaceClass,serviceName);
     }
 
@@ -190,23 +132,18 @@ public class RpcServiceContext {
 
 
 
-    public ServiceClient getServiceClient(String serviceName) {
-        RPCServiceInstance instance = remoteServiceMap.computeIfAbsent(serviceName,name->{
+    public RPCServiceInstance getServiceAddress(String serviceName) {
+        return remoteServiceMap.computeIfAbsent(serviceName,name->{
             try {
                 return registerClient.selectOneHealthyInstance(name);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         });
-        //TODO 负载均衡实现？
-        return serviceClientPool.getConnection(instance.getIp() + ":" + instance.getPort());
     }
 
 
-    public void returnBackConnection(ServiceClient serviceClient)
-    {
-        serviceClientPool.returnConnection(serviceClient);
-    }
+
 
 
 }

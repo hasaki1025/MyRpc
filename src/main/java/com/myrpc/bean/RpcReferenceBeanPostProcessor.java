@@ -3,6 +3,7 @@ package com.myrpc.bean;
 import com.myrpc.Annotation.RpcController;
 import com.myrpc.Annotation.RpcReference;
 import com.myrpc.Factory.ProxyFactory;
+import com.myrpc.Util.RpcReferenceUtil;
 import com.myrpc.context.RpcServiceContext;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -20,9 +21,10 @@ public class RpcReferenceBeanPostProcessor implements BeanPostProcessor {
 
 
 
-    public RpcReferenceBeanPostProcessor(ProxyFactory proxyFactory, RpcServiceContext context) {
+
+    public RpcReferenceBeanPostProcessor(ProxyFactory proxyFactory) {
         this.proxyFactory = proxyFactory;
-        this.context = context;
+        this.context = proxyFactory.getRequestFactory().getContext();
     }
 
 
@@ -62,10 +64,9 @@ public class RpcReferenceBeanPostProcessor implements BeanPostProcessor {
                     {
 
                         Class<?> fieldClass = field.getType();
-                        String serviceName = field.getAnnotation(RpcReference.class).serviceName();
                         //将标注有RpcReference注解的变量注入代理对象
                         field.set(bean,proxyFactory.getServiceProxyInstance(fieldClass));
-                        context.addRemoteService(fieldClass,serviceName);
+                        context.addRemoteService(fieldClass, RpcReferenceUtil.getServiceName(field.getAnnotation(RpcReference.class),fieldClass));
                     }
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException(e);

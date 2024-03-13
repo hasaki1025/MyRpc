@@ -2,6 +2,7 @@ package com.myrpc.net.client;
 
 
 import com.myrpc.Util.ChannelUtil;
+import com.myrpc.net.CallFuture;
 import com.myrpc.net.ClientChannelInitializer;
 import com.myrpc.protocol.Enums.ChannelType;
 import com.myrpc.protocol.RPCRequest;
@@ -55,6 +56,11 @@ public class ServiceClient implements ConsumerClient {
         this.clientPool = clientPool;
     }
 
+    public int getNextSeq()
+    {
+        return ChannelUtil.getChannelResponseMap(channel).getNextRequestID();
+    }
+
 
 
 
@@ -68,12 +74,11 @@ public class ServiceClient implements ConsumerClient {
     public Future<ResponseContent>  call(RPCRequest request) throws Exception  {
         if (isInit())
         {
-            //注意在Client中设置seq
-            request.setSeq(ChannelUtil.getChannelResponseMap(channel).getNextRequestID());
+            CallFuture callFuture = ChannelUtil.getChannelResponseMap(channel).addWaitingRequest(request.getSeq(), workerGroup);
             channel.writeAndFlush(request).addListener(f->{
                 clientPool.returnConnection(ServiceClient.this);
             });
-            return ChannelUtil.getChannelResponseMap(channel).addWaitingRequest(request.getSeq(), workerGroup);
+            return callFuture;
         }
         throw new Exception("not init this Client");
 
@@ -100,6 +105,7 @@ public class ServiceClient implements ConsumerClient {
     public void init(String host, int port, Class<? extends Channel> channelClass) {
         if (isInit.compareAndSet(false,true))
         {
+            log.info("start init Client");
             try {
                 channel = new Bootstrap()
                         .group(group)

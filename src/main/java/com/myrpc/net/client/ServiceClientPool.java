@@ -20,7 +20,6 @@ public class ServiceClientPool {
      final DefaultEventLoopGroup workerGroup=new DefaultEventLoopGroup();
      final ClientChannelInitializer channelInitializer;
 
-    final  List<ChannelHandler> handlersChain;
 
     final ChannelType channelType;
 
@@ -29,10 +28,9 @@ public class ServiceClientPool {
     final long timeout;
 
 
-    public ServiceClientPool(EventLoopGroup group, ClientChannelInitializer channelInitializer, List<ChannelHandler> handlersChain, ChannelType channelType, long timeout) {
+    public ServiceClientPool(EventLoopGroup group, ClientChannelInitializer channelInitializer, ChannelType channelType, long timeout) {
         this.group = group;
         this.channelInitializer = channelInitializer;
-        this.handlersChain = handlersChain;
         this.channelType = channelType;
         this.timeout = timeout;
     }

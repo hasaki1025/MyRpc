@@ -1,6 +1,7 @@
 package com.myrpc.bean;
 
 import com.myrpc.Annotation.RpcService;
+import com.myrpc.Factory.ServiceInstanceFactory;
 import com.myrpc.Util.BeanUtil;
 import com.myrpc.context.RpcServiceContext;
 import org.springframework.beans.BeansException;
@@ -13,8 +14,11 @@ public class RpcServiceBeanPostProcessor implements BeanPostProcessor {
 
     final RpcServiceContext serviceContext;
 
-    public RpcServiceBeanPostProcessor(RpcServiceContext serviceContext) {
+    final ServiceInstanceFactory serviceInstanceFactory;
+
+    public RpcServiceBeanPostProcessor(RpcServiceContext serviceContext, ServiceInstanceFactory serviceInstanceFactory) {
         this.serviceContext = serviceContext;
+        this.serviceInstanceFactory = serviceInstanceFactory;
     }
 
     /**将符合条件的Bean注入到serviceContext中
@@ -31,7 +35,7 @@ public class RpcServiceBeanPostProcessor implements BeanPostProcessor {
         if (rpcServiceAnnotation ==null || beanClass.getInterfaces().length==0)
             return BeanPostProcessor.super.postProcessBeforeInitialization(bean, beanName);
         try {
-            serviceContext.addLocalService(bean);
+            serviceContext.addLocalService(serviceInstanceFactory.getServiceInstance(beanClass),bean);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

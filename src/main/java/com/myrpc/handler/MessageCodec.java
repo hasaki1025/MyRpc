@@ -38,7 +38,7 @@ public class MessageCodec extends MessageToMessageCodec<ByteBuf, BinaryMessage> 
     protected void decode(ChannelHandlerContext ctx, ByteBuf msg, List<Object> out) throws Exception {
         try {
 
-            BinaryMessage message = MessageUtil.bytesToDefaultMessage(msg);
+            BinaryMessage message = MessageUtil.bytesToBinaryMessage(msg);
             if (message.getMessageType().equals(MessageType.response))
             {
                 ResponseMap responseMap = ChannelUtil.getChannelResponseMap(ctx);

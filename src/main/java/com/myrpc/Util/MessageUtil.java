@@ -33,13 +33,21 @@ public class MessageUtil {
 
     public static int countSize(BinaryMessage binaryMessage)
     {
-        return CONST_MESSAGE_SIZE+binaryMessage.getHeaderMap().size()*2+binaryMessage.getContent().length;
+        return CONST_MESSAGE_SIZE+binaryMessage.getHeaders().size()*2+binaryMessage.getContent().length;
+    }public static int countSize(Map<Integer,Integer> headers,byte[] content)
+    {
+        return CONST_MESSAGE_SIZE+headers.size()*2+content.length;
+    }
+
+    public static int countHeaderSize(Map<Integer, Integer> headers)
+    {
+        return headers.size()*2+1;
     }
 
 
 
 
-    public static BinaryMessage bytesToDefaultMessage(ByteBuf buf) throws MessageReadException {
+    public static BinaryMessage bytesToBinaryMessage(ByteBuf buf) throws MessageReadException {
         //BinaryMessage message = new BinaryMessage();
 
 
@@ -53,7 +61,7 @@ public class MessageUtil {
         boolean requiredResponse=false;
         if (msgType.equals(MessageType.request))
             requiredResponse  = (b & 0x40) != 0;
-
+        //TODO bug
         Status status = Status.forInt(b & 0x3F);
 
         int seq = buf.readInt();
@@ -74,7 +82,7 @@ public class MessageUtil {
         byte[] content = new byte[size-2*headers.size()-1];
         buf.readBytes(content);
 
-        return new BinaryMessage(msgType,requiredResponse,headers,seq,status,content);
+        return new BinaryMessage(headers,content,msgType,requiredResponse,size,seq,status);
     }
 
     public static void messageToBytes(BinaryMessage message, ByteBuf buf)
@@ -95,7 +103,7 @@ public class MessageUtil {
 
         buf.writeShort(message.getSize());
 
-        message.getHeaderMap().forEach((k,v)->{
+        message.getHeaders().forEach((k,v)->{
             buf.writeByte(k.byteValue());
             buf.writeByte(v.byteValue());
         });

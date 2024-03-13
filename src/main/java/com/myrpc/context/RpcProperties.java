@@ -3,15 +3,15 @@ package com.myrpc.context;
 import com.myrpc.Factory.PropertiesFactory;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import java.net.UnknownHostException;
 import java.util.concurrent.atomic.AtomicBoolean;
 @Slf4j
-
 @Component
-public class RpcProperties {
+public class RpcProperties  {
 
 
 
@@ -23,6 +23,12 @@ public class RpcProperties {
     Environment environment;
 
     AtomicBoolean isInit=new AtomicBoolean(false);
+
+    public RpcProperties(Environment environment) throws Exception {
+        this.environment = environment;
+        init();
+    }
+
 
     public RpcRegisterProperties getRegisterProperties() throws Exception {
         if (isInit.get())
@@ -42,9 +48,7 @@ public class RpcProperties {
         return isInit.get();
     }
 
-    public RpcProperties(Environment environment) {
-        this.environment = environment;
-    }
+
 
     public void init() throws Exception {
         if (isInit.compareAndSet(false,true))
@@ -64,13 +68,6 @@ public class RpcProperties {
     public void initRpcNetProperties() throws UnknownHostException {
         rpcNetProperties = PropertiesFactory.getRpcNetProperties(environment);
     }
-
-
-
-
-
-
-
 
 
 

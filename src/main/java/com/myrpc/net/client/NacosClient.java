@@ -29,8 +29,9 @@ public class NacosClient  implements RegisterClient {
 
     AtomicBoolean isInit=new AtomicBoolean(false);
 
-    public NacosClient(RpcProperties rpcProperties) {
+    public NacosClient(RpcProperties rpcProperties) throws Exception {
         this.rpcProperties = rpcProperties;
+        init(rpcProperties.getRegisterProperties().getProperties());
     }
 
     /**

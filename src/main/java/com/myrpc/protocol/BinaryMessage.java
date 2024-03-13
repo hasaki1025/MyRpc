@@ -1,6 +1,9 @@
 package com.myrpc.protocol;
 
+import com.myrpc.Util.MessageUtil;
+import com.myrpc.protocol.Enums.EncryptionMethod;
 import com.myrpc.protocol.Enums.MessageType;
+import com.myrpc.protocol.Enums.SerializableType;
 import com.myrpc.protocol.Enums.Status;
 import com.myrpc.protocol.content.RequestContent;
 import com.myrpc.protocol.content.ResponseContent;
@@ -12,35 +15,76 @@ import java.util.Map;
 
 @Getter
 @Setter
-public class BinaryMessage extends AbstractMessage {
+public class BinaryMessage  implements Message{
 
-    Map<Integer,Integer> headerMap;
+    Map<Integer,Integer> headers;
     byte[] content;
     int headerSize;
     int contentSize;
+    MessageType messageType;
+    boolean requiredResponse;
+    int size;
+    int seq;
+    Status status;
 
 
-
-
-    public BinaryMessage(MessageType messageType, boolean requiredResponse, Map<Integer, Integer> headerMap, int seq, Status status, byte[] content) {
-        super(headerMap,messageType,requiredResponse,headerMap.size()*2+1+ content.length,seq,status);
-        this.headerSize = headerMap.size() * 2 + 1;
-        this.contentSize = size - headerSize;
+    public void setContent(byte[] content) {
+        this.content = content;
+        this.size=MessageUtil.countSize(this);
+        this.headerSize=MessageUtil.countHeaderSize(headers);
+        this.contentSize=content.length;
     }
 
-    public RPCRequest toRPCRequest(RequestContent content)
+    public BinaryMessage(RPCRequest request, byte[] content, Map<Integer,Integer> headers)
     {
-        return new RPCRequest(
-                headerMap, messageType, requiredResponse, size, seq, status,content
-        );
-    }
-    public RPCResponse toRPCResponse(ResponseContent content)
-    {
-        return new RPCResponse(
-                headerMap,messageType,requiredResponse,size,seq,status,content
-        );
+        this.headers=headers;
+        this.content=content;
+        this.size= MessageUtil.countSize(headers,content);
+        this.headerSize=MessageUtil.countHeaderSize(headers);
+        this.contentSize=content.length;
+        this.messageType=request.getMessageType();
+        this.requiredResponse=request.isRequiredResponse();
+        this.seq=request.getSeq();
+        this.status=request.getStatus();
     }
 
+    public BinaryMessage(RPCResponse response,byte[] content,Map<Integer,Integer> headers)
+    {
+        this.headers=headers;
+        this.content=content;
+        this.size= MessageUtil.countSize(headers,content);
+        this.headerSize=MessageUtil.countHeaderSize(headers);
+        this.contentSize=content.length;
+        this.messageType=response.getMessageType();
+        this.requiredResponse=response.isRequiredResponse();
+        this.seq=response.getSeq();
+        this.status=response.getStatus();
+    }
+
+
+    public BinaryMessage(Map<Integer, Integer> headers, byte[] content, MessageType messageType, boolean requiredResponse, int size, int seq, Status status) {
+        this.headers = headers;
+        this.content = content;
+        this.messageType = messageType;
+        this.requiredResponse = requiredResponse;
+        this.size = size;
+        this.seq = seq;
+        this.status = status;
+        this.headerSize=MessageUtil.countHeaderSize(headers);
+        this.contentSize=content.length;
+    }
+
+    public BinaryMessage(Map<Integer, Integer> headers, byte[] content, int headerSize, int contentSize, MessageType messageType, boolean requiredResponse, int size, int seq, Status status) {
+        this.headers = headers;
+        this.content = content;
+        this.headerSize = headerSize;
+        this.contentSize = contentSize;
+        this.messageType = messageType;
+        this.requiredResponse = requiredResponse;
+        this.size = size;
+        this.seq = seq;
+        this.status = status;
+    }
 
     /**
      * @return 返回二进制流的报文内容
@@ -48,5 +92,17 @@ public class BinaryMessage extends AbstractMessage {
     @Override
     public byte[] getContent() {
         return content;
+    }
+
+    public RPCRequest toRPCRequest(RequestContent content) {
+        SerializableType serializableType = SerializableType.forInt(HeaderMap.getHeaderValue(headers, SerializableType.class.getCanonicalName()));
+        EncryptionMethod encryptionMethod = EncryptionMethod.forInteger(HeaderMap.getHeaderValue(headers, EncryptionMethod.class.getCanonicalName()));
+        return new RPCRequest(content, serializableType, encryptionMethod, this.requiredResponse, this.seq);
+    }
+
+    public RPCResponse toRPCResponse(ResponseContent content) {
+        SerializableType serializableType = SerializableType.forInt(HeaderMap.getHeaderValue(headers, SerializableType.class.getCanonicalName()));
+        EncryptionMethod encryptionMethod = EncryptionMethod.forInteger(HeaderMap.getHeaderValue(headers, EncryptionMethod.class.getCanonicalName()));
+        return new RPCResponse(content, serializableType, encryptionMethod, this.seq,this.status);
     }
 }

@@ -1,5 +1,6 @@
 package com.myrpc.Factory;
 
+import com.myrpc.context.RpcProperties;
 import com.myrpc.net.ClientChannelInitializer;
 import com.myrpc.net.client.ServiceClientPool;
 import com.myrpc.protocol.Enums.ChannelType;
@@ -8,12 +9,13 @@ import io.netty.channel.EventLoopGroup;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ServiceClientPoolFactory implements FactoryBean<ServiceClientPool> {
+public class ServiceClientPoolFactory  {
 
-    String channelType;
+    ChannelType channelType;
 
     EventLoopGroup eventLoopGroup;
     DefaultEventLoopGroup defaultEventLoopGroup;
@@ -21,11 +23,11 @@ public class ServiceClientPoolFactory implements FactoryBean<ServiceClientPool> 
     ClientChannelInitializer clientChannelInitializer;
 
 
-    public ServiceClientPoolFactory(@Value("${MyRpc.net.ChannelType}") String channelType,
+    public ServiceClientPoolFactory(RpcProperties rpcProperties,
                                     @Qualifier("group") EventLoopGroup eventLoopGroup,
                                     @Qualifier("workerGroup")DefaultEventLoopGroup defaultEventLoopGroup,
-                                    ClientChannelInitializer clientChannelInitializer) {
-        this.channelType = channelType;
+                                    ClientChannelInitializer clientChannelInitializer) throws Exception {
+        this.channelType = rpcProperties.getRpcNetProperties().getChannelType();
         this.eventLoopGroup = eventLoopGroup;
         this.defaultEventLoopGroup = defaultEventLoopGroup;
         this.clientChannelInitializer = clientChannelInitializer;
@@ -35,29 +37,14 @@ public class ServiceClientPoolFactory implements FactoryBean<ServiceClientPool> 
      * @return
      * @throws Exception
      */
-    @Override
-    public ServiceClientPool getObject() throws Exception {
+    @Bean
+    public ServiceClientPool serviceClientPool() throws Exception {
         return new ServiceClientPool(eventLoopGroup,
                 clientChannelInitializer,
-                clientChannelInitializer.getHandlersChain(),
-                ChannelType.valueOf(channelType),
+                channelType,
                 clientChannelInitializer.getTimeout()
                 );
     }
 
-    /**
-     * @return
-     */
-    @Override
-    public Class<?> getObjectType() {
-        return ServiceClientPool.class;
-    }
 
-    /**
-     * @return
-     */
-    @Override
-    public boolean isSingleton() {
-        return true;
-    }
 }

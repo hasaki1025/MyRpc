@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 @ChannelHandler.Sharable
 @Slf4j
 @Order(4)
-@Component("com.example.handler.CallServiceResponseHandler")
+
 public class CallServiceResponseHandler extends SimpleChannelInboundHandler<RPCResponse> {
 
 
@@ -32,6 +32,5 @@ public class CallServiceResponseHandler extends SimpleChannelInboundHandler<RPCR
     protected void channelRead0(ChannelHandlerContext ctx, RPCResponse msg) throws Exception {
         ResponseMap responseMap = ChannelUtil.getChannelResponseMap(ctx.channel());
         responseMap.setResponse(msg);
-
     }
 }

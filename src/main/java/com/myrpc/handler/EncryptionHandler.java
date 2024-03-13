@@ -15,7 +15,7 @@ import java.util.List;
 @ChannelHandler.Sharable
 @Slf4j
 @Order(2)
-@Component("com.example.handler.EncryptionHandler")
+
 public class EncryptionHandler  extends MessageToMessageCodec<BinaryMessage, BinaryMessage> {
 
 
@@ -34,8 +34,8 @@ public class EncryptionHandler  extends MessageToMessageCodec<BinaryMessage, Bin
     @Override
     protected void encode(ChannelHandlerContext ctx, BinaryMessage msg, List<Object> out) throws Exception {
         msg.setContent(encipherConvertor.encode(msg.getContent()));
-        msg.setSize(MessageUtil.countSize(msg));
         out.add(msg);
+
     }
 
     /**

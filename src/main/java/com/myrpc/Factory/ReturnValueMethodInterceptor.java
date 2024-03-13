@@ -26,7 +26,8 @@ public class ReturnValueMethodInterceptor implements MethodInterceptor {
      */
     @Override
     public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
-        ResponseContent content = callFuture.get();
+        Object content = callFuture.get().getResult();
+        //TODO bug
         return method.invoke(content, args);
     }
 

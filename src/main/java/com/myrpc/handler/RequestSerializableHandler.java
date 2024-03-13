@@ -5,6 +5,7 @@ import com.myrpc.context.RpcProperties;
 import com.myrpc.net.SerializableConvertor;
 import com.myrpc.protocol.BinaryMessage;
 import com.myrpc.protocol.Enums.MessageType;
+import com.myrpc.protocol.Message;
 import com.myrpc.protocol.RPCRequest;
 import com.myrpc.protocol.content.RequestContent;
 import io.netty.channel.ChannelHandler;
@@ -21,7 +22,7 @@ import java.util.List;
 @ChannelHandler.Sharable
 @Order(3)
 @Slf4j
-@Component("com.example.handler.RequestSerializableHandler")
+
 public class RequestSerializableHandler extends MessageToMessageCodec<BinaryMessage, RPCRequest> {
 
 
@@ -35,11 +36,11 @@ public class RequestSerializableHandler extends MessageToMessageCodec<BinaryMess
 
     @Override
     public boolean acceptOutboundMessage(Object msg) throws Exception {
-        return super.acceptOutboundMessage(msg) && ((BinaryMessage)msg).getMessageType().equals(MessageType.request);
+        return super.acceptOutboundMessage(msg) && ((Message)msg).getMessageType().equals(MessageType.request);
     }
     @Override
     public boolean acceptInboundMessage(Object msg) throws Exception {
-        return super.acceptInboundMessage(msg) && ((BinaryMessage)msg).getMessageType().equals(MessageType.request);
+        return super.acceptInboundMessage(msg) && ((Message)msg).getMessageType().equals(MessageType.request);
     }
     @Override
     protected void encode(ChannelHandlerContext ctx, RPCRequest msg, List<Object> out) throws Exception {

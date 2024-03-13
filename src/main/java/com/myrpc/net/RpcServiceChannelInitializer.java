@@ -27,7 +27,7 @@ public class RpcServiceChannelInitializer extends ChannelInitializer<Channel> {
     long timeout;
 
 
-    public RpcServiceChannelInitializer(List<ChannelHandler> handlersChain,@Value("${MyRpc.net.RequestTimeOut}") long timeout) {
+    public RpcServiceChannelInitializer(List<ChannelHandler> handlersChain,long timeout) {
         this.handlersChain = handlersChain;
         this.timeout = timeout;
     }

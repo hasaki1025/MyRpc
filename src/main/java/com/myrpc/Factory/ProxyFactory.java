@@ -1,7 +1,9 @@
 package com.myrpc.Factory;
 
 import com.myrpc.context.RpcServiceContext;
+import com.myrpc.net.client.ServiceClientPool;
 import com.myrpc.protocol.content.ResponseContent;
+import lombok.Getter;
 import org.springframework.cglib.proxy.Enhancer;
 import org.springframework.stereotype.Component;
 
@@ -10,14 +12,17 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 @Component
+@Getter
 public class ProxyFactory {
 
 
 
-    RpcServiceContext context;
+   final RpcRequestFactory requestFactory;
+   final ServiceClientPool serviceClientPool;
 
-    public ProxyFactory(RpcServiceContext context) {
-        this.context = context;
+    public ProxyFactory(RpcRequestFactory requestFactory, ServiceClientPool serviceClientPool) {
+        this.requestFactory = requestFactory;
+        this.serviceClientPool = serviceClientPool;
     }
 
     private final ConcurrentHashMap<Class<?>,Object> proxyCache=new ConcurrentHashMap<>();
@@ -30,7 +35,7 @@ public class ProxyFactory {
     public Object getServiceProxyInstance(Class<?> serviceClass){
         if (proxyCache.containsKey(serviceClass))
             return proxyCache.get(serviceClass);
-        ServiceProxyInvocationHandler handler = new ServiceProxyInvocationHandler(context ,serviceClass);
+        ServiceProxyInvocationHandler handler = new ServiceProxyInvocationHandler(requestFactory ,serviceClass,serviceClientPool);
         Object proxy = Proxy.newProxyInstance(serviceClass.getClassLoader(), new Class<?>[]{serviceClass}, handler);
         proxyCache.put(serviceClass, proxy);
         return proxy;
@@ -40,7 +45,7 @@ public class ProxyFactory {
 
     public static Object getReturnValueProxy(Class<?> clazz, Future<ResponseContent> future) throws ExecutionException, InterruptedException {
         if (clazz.isPrimitive())
-            return future.get();
+            return future.get().getResult();
         ReturnValueMethodInterceptor returnValueProxyFactory = new ReturnValueMethodInterceptor(future);
         Enhancer enhancer = new Enhancer();
         enhancer.setSuperclass(clazz);

@@ -1,5 +1,6 @@
 package com.myrpc.Factory;
 
+import com.myrpc.context.RpcProperties;
 import com.myrpc.net.AESConvertor;
 import com.myrpc.net.DefaultConvertor;
 import com.myrpc.net.EncipherConvertor;
@@ -7,30 +8,30 @@ import com.myrpc.net.RSAConvertor;
 import com.myrpc.protocol.Enums.EncryptionMethod;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 @Component
-public class EncryptionFactory implements FactoryBean<EncipherConvertor> {
+public class EncryptionFactory  {
 
-    String encryptionMethod;
+
 
     EncryptionMethod method;
     Class<? extends EncipherConvertor> methodClass;
 
+    RpcProperties rpcProperties;
 
-
-    public EncryptionFactory(@Value("${MyRpc.net.protocol.EncryptionMethod}") String encryptionMethod) {
-        this.encryptionMethod = encryptionMethod;
-        method=EncryptionMethod.valueOf(encryptionMethod);
+    public EncryptionFactory(RpcProperties rpcProperties) throws Exception {
+        this.rpcProperties = rpcProperties;
+        method=rpcProperties.getRpcNetProperties().getProtocolProperties().getEncryptionMethod();
         methodClass=EncryptionMethod.toEncryptionMethodClass(method);
     }
-
     /**
      * @return
      * @throws Exception
      */
-    @Override
-    public EncipherConvertor getObject() throws Exception {
+    @Bean
+    public EncipherConvertor encipherConvertor() throws Exception {
         if (method.equals(EncryptionMethod.DEFAULT))
             return new DefaultConvertor();
         else if (method.equals(EncryptionMethod.RSA)) {
@@ -41,19 +42,4 @@ public class EncryptionFactory implements FactoryBean<EncipherConvertor> {
         throw new Exception("no match EncryptionMethod");
     }
 
-    /**
-     * @return
-     */
-    @Override
-    public Class<?> getObjectType() {
-        return methodClass;
-    }
-
-    /**
-     * @return
-     */
-    @Override
-    public boolean isSingleton() {
-        return true;
-    }
 }

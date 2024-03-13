@@ -1,5 +1,7 @@
 package com.myrpc.net;
 
+import com.myrpc.context.RpcProperties;
+import com.myrpc.context.RpcServiceContext;
 import com.myrpc.protocol.Enums.ChannelType;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
@@ -28,16 +30,20 @@ public class Server implements Closeable {
 
     final RpcServiceChannelInitializer rpcServiceChannelInitializer;
 
+    final RpcProperties rpcProperties;
+
     String ip;
     int port;
 
-    public Server(EventLoopGroup bossGroup, EventLoopGroup childGroup, DefaultEventLoopGroup workerGroup, ChannelType channelType, RpcServiceChannelInitializer rpcServiceChannelInitializer, int port) {
+    public Server(EventLoopGroup bossGroup, EventLoopGroup childGroup, DefaultEventLoopGroup workerGroup, ChannelType channelType, RpcServiceChannelInitializer rpcServiceChannelInitializer, RpcProperties rpcProperties, int port) {
         this.bossGroup = bossGroup;
         this.childGroup = childGroup;
         this.workerGroup = workerGroup;
         this.channelType = channelType;
         this.rpcServiceChannelInitializer = rpcServiceChannelInitializer;
+        this.rpcProperties = rpcProperties;
         this.port = port;
+        init();
     }
 
 
@@ -63,10 +69,11 @@ public class Server implements Closeable {
 
 
 
-    protected void serverChannelInit() {
+    protected void serverChannelInit() throws Exception {
         InetSocketAddress localAddress = (InetSocketAddress) serverChannel.localAddress();
         ip = localAddress.getHostName();
         port = localAddress.getPort();
+        rpcProperties.getRpcNetProperties().setPort(port);
     }
 
     @Override

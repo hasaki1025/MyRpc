@@ -7,16 +7,12 @@ import com.myrpc.net.client.RegisterClient;
 import com.myrpc.protocol.Enums.RegisterType;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 @Component
-public class RegisterClientFactory implements FactoryBean<RegisterClient> {
-
-
-
-
-
+public class RegisterClientFactory  {
 
 
     RegisterClient client=null;
@@ -26,20 +22,17 @@ public class RegisterClientFactory implements FactoryBean<RegisterClient> {
 
     Class<? extends  RegisterClient> registerClass;
 
-    public RegisterClientFactory(@Value("${MyRpc.register.address}") String registerAddress, RpcProperties rpcProperties) {
+    public RegisterClientFactory(RpcProperties rpcProperties) throws Exception {
         this.rpcProperties = rpcProperties;
-        if (registerAddress.startsWith(NacosProperties.ADDR_PREFIX))
-        {
-            registerType=RegisterType.NACOS;
-            registerClass= NacosClient.class;
-        }
+        registerType=rpcProperties.getRegisterProperties().getRegisterType();
+        registerClass= RegisterType.ToRegisterClass(registerType);
     }
     /**
      * @return
      * @throws Exception
      */
-    @Override
-    public RegisterClient getObject() throws Exception {
+    @Bean
+    public RegisterClient registerClient() throws Exception {
         if (client==null)
         {
             if (registerType.equals(RegisterType.NACOS)) {
@@ -50,19 +43,5 @@ public class RegisterClientFactory implements FactoryBean<RegisterClient> {
         return client;
     }
 
-    /**
-     * @return
-     */
-    @Override
-    public Class<?> getObjectType() {
-        return RegisterClient.class;
-    }
 
-    /**
-     * @return
-     */
-    @Override
-    public boolean isSingleton() {
-        return true;
-    }
 }

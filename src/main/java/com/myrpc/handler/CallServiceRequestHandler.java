@@ -20,12 +20,18 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Order(4)
 
-@Component("com.example.handler.CallServiceRequestHandler")
 public class CallServiceRequestHandler extends SimpleChannelInboundHandler<RPCRequest> {
+
+
+
+    RpcResponseFactory rpcResponseFactory;
 
     RpcServiceContext context;
 
-
+    public CallServiceRequestHandler(RpcResponseFactory rpcResponseFactory, RpcServiceContext context) {
+        this.rpcResponseFactory = rpcResponseFactory;
+        this.context = context;
+    }
 
     @Override
     public boolean acceptInboundMessage(Object msg) throws Exception {
@@ -36,7 +42,7 @@ public class CallServiceRequestHandler extends SimpleChannelInboundHandler<RPCRe
     protected void channelRead0(ChannelHandlerContext ctx,RPCRequest msg) throws Exception {
         Object object = context.getLocalServiceObject(msg.getContent().getServiceName());
         ResponseContent responseContent = ReflectInvoker.invoke(object, msg.getContent());
-        RPCResponse response = RpcResponseFactory.createResponse(responseContent,msg.getSeq() , context);
+        RPCResponse response = rpcResponseFactory.createResponse(responseContent,msg.getSeq());
         ctx.writeAndFlush(response);
     }
 }
