@@ -8,6 +8,7 @@ import com.example.net.client.ServiceClientPool;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.Assert;
@@ -22,14 +23,9 @@ public class RpcServiceContext implements InitializingBean {
 
     RegisterClient registerClient;
 
-    //TODO 暂未注入
-    ServiceClientPool serviceClientPool;
+    final ServiceClientPool serviceClientPool;
 
-
-
-
-
-    RpcProperties rpcProperties;
+    final RpcProperties rpcProperties;
 
     AtomicBoolean isInit=new AtomicBoolean(false);
 
@@ -51,7 +47,10 @@ public class RpcServiceContext implements InitializingBean {
 
     public final ConcurrentHashMap<String,Object> localServiceObjectMap=new ConcurrentHashMap<>();
 
-
+    public RpcServiceContext(ServiceClientPool serviceClientPool, RpcProperties rpcProperties) {
+        this.serviceClientPool = serviceClientPool;
+        this.rpcProperties = rpcProperties;
+    }
 
     public void init()
     {
@@ -146,8 +145,8 @@ public class RpcServiceContext implements InitializingBean {
     }
 
 
-    public void turnBackClient(ServiceClient serviceClient)
+    public void returnBackConnection(ServiceClient serviceClient)
     {
-
+        serviceClientPool.returnConnection(serviceClient);
     }
 }

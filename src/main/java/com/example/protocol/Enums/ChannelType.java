@@ -17,6 +17,8 @@ public enum ChannelType {
     };
 
 
+
+
     public static Class<? extends Channel> ToChannelClass(ChannelType channelType)
     {
         return ChannelClass[channelType.value];

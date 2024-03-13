@@ -8,11 +8,17 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.logging.LoggingHandler;
+import lombok.Data;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Slf4j
+@Component
+@Getter
 public class ClientChannelInitializer extends ChannelInitializer<Channel> {
 
 
@@ -24,7 +30,7 @@ public class ClientChannelInitializer extends ChannelInitializer<Channel> {
     long timeout;
 
 
-    public ClientChannelInitializer(List<ChannelHandler> handlersChain, long timeout) {
+    public ClientChannelInitializer(List<ChannelHandler> handlersChain,@Value("${MyRpc.net.RequestTimeOut}") long timeout) {
         this.handlersChain = handlersChain;
         this.timeout = timeout;
     }

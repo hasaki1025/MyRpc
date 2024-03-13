@@ -2,6 +2,7 @@ package com.example.net.client;
 
 
 import com.example.Util.ChannelUtil;
+import com.example.net.CallFuture;
 import com.example.net.ClientChannelInitializer;
 import com.example.net.ResponseMap;
 import com.example.protocol.Enums.ChannelType;
@@ -41,14 +42,45 @@ public class ServiceClient implements ConsumerClient {
     final long timeout;
 
 
+    /**
+     * 所属连接池
+     */
+    final ServiceClientPool clientPool;
+
+
 
     AtomicBoolean isInit=new AtomicBoolean(false);
 
-    public ServiceClient(EventLoopGroup group, DefaultEventLoopGroup workerGroup, ClientChannelInitializer channelInitializer, long timeout) {
+    public ServiceClient(EventLoopGroup group, DefaultEventLoopGroup workerGroup, ClientChannelInitializer channelInitializer, long timeout, ServiceClientPool clientPool) {
         this.group = group;
         this.workerGroup = workerGroup;
         this.channelInitializer = channelInitializer;
         this.timeout = timeout;
+        this.clientPool = clientPool;
+    }
+
+
+
+
+
+
+    /**
+     * 采用默认的同步调用
+     * @param request 请求
+     * @return 请求的响应content
+     */
+    public Future<ResponseContent>  call(RPCRequest request) throws Exception  {
+        if (isInit())
+        {
+            //注意在Client中设置seq
+            request.setSeq(ChannelUtil.getChannelResponseMap(channel).getNextRequestID());
+            channel.writeAndFlush(request).addListener(f->{
+                clientPool.returnConnection(ServiceClient.this);
+            });
+            return ChannelUtil.getChannelResponseMap(channel).addWaitingRequest(request.getSeq(), workerGroup);
+        }
+        throw new Exception("not init this Client");
+
     }
 
 
@@ -89,23 +121,6 @@ public class ServiceClient implements ConsumerClient {
         }
     }
 
-
-    /**
-     * 采用默认的同步调用
-     * @param request 请求
-     * @return 请求的响应content
-     */
-    public Future<ResponseContent> call(RPCRequest request) throws Exception {
-        if (isInit())
-        {
-            //注意在Client中设置seq
-            request.setSeq(ChannelUtil.getChannelResponseMap(channel).getNextRequestID());
-            channel.writeAndFlush(request);
-            return ChannelUtil.getChannelResponseMap(channel).addWaitingRequest(request.getSeq(),workerGroup);
-        }
-        throw new Exception("not init this Client");
-
-    }
 
 
 
