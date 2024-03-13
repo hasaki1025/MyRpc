@@ -1,1 +1,26 @@
-spring.application.name=MyRPC
+spring:
+  profiles:
+    include: log
+
+
+MyRpc:
+  register:
+    address: nacos://127.0.0.1:8848
+    auth:
+      enabled: false
+      userName: 123
+      password: 123
+  net:
+    localHost:
+    ChannelType: NIO
+    RequestTimeOut: 1000
+    protocol:
+      SerializableType: JSON
+      EncryptionMethod: DEFAULT
+
+
+
+
+
+
+

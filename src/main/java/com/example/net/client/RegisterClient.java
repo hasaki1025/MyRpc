@@ -8,7 +8,7 @@ import java.util.List;
 public interface RegisterClient {
 
 
-    void init(String ip,int port) throws Exception;
+    void init(String address) throws Exception;
     void register(RPCServiceInstance instance) throws Exception;
 
     void deregister(RPCServiceInstance instance) throws Exception;

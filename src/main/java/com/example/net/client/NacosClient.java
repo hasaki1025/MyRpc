@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.Closeable;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
@@ -29,10 +30,14 @@ public class NacosClient implements RegisterClient {
      * 初始化
      */
     @Override
-    public void init(String ip,int port) throws NacosException {
-        String serverAddr=ip+":"+port;
+    public void init(String serverAddr) throws NacosException {
         log.info("Nacos Client[{}] init...",serverAddr);
-        registerService= NamingFactory.createNamingService(serverAddr);
+       // registerService= NamingFactory.createNamingService(Properties);
+    }
+
+    public void init(Properties properties) throws NacosException {
+        registerService=NamingFactory.createNamingService(properties);
+        init(properties.getProperty("serverAddr"));
     }
 
     /**
